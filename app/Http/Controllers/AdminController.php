@@ -91,7 +91,7 @@ class AdminController extends Controller
     {
         $id = Crypt::decrypt($id);
 
-        $agency = Agency::where("visible",1)->find($id);
+        $agency = Agency::where("visible", 1)->find($id);
         ####____
 
         ###___
@@ -101,7 +101,7 @@ class AdminController extends Controller
     function Proprietor(Request $request, $agencyId)
     {
         $id = Crypt::decrypt($agencyId);
-        $agency = Agency::where("visible",1)->findOrFail($id);
+        $agency = Agency::where("visible", 1)->findOrFail($id);
         ####____
         return view("admin.proprietors", compact("agency"));
     }
@@ -110,7 +110,7 @@ class AdminController extends Controller
     {
         $id = Crypt::decrypt($agencyId);
 
-        $agency = Agency::where("visible",1)->findOrFail($id);
+        $agency = Agency::where("visible", 1)->findOrFail($id);
         ####____
         return view("admin.houses", compact("agency"));
     }
@@ -122,7 +122,7 @@ class AdminController extends Controller
 
     function Room(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         }
@@ -134,7 +134,7 @@ class AdminController extends Controller
     function Locator(Request $request, $agencyId)
     {
 
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -144,7 +144,7 @@ class AdminController extends Controller
 
     function PaidLocator(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -154,22 +154,22 @@ class AdminController extends Controller
 
     function UnPaidLocator(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
-        
+
         ####____
         return view("admin.unpaid-locators", compact("agency"));
     }
 
     function Location(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
-        
+
         ####____
         return view("admin.locations", compact("agency"));
     }
@@ -186,7 +186,7 @@ class AdminController extends Controller
 
     function AgencyInitiation(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -197,7 +197,7 @@ class AdminController extends Controller
 
     function Paiement(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -207,7 +207,7 @@ class AdminController extends Controller
 
     function Electricity(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -385,21 +385,14 @@ class AdminController extends Controller
         return view("admin.rights");
     }
 
-    
+
 
     function Eau(Request $request, $agencyId)
     {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
         ##___
 
         return view("admin.eau_locations", compact("agency"));
@@ -407,7 +400,7 @@ class AdminController extends Controller
 
     function Caisses(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -417,7 +410,7 @@ class AdminController extends Controller
 
     function CaisseMouvements(Request $request, $agencyId, $agency_account)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -428,7 +421,7 @@ class AdminController extends Controller
 
     function Encaisser(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -439,7 +432,7 @@ class AdminController extends Controller
 
     function Decaisser(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
@@ -474,12 +467,10 @@ class AdminController extends Controller
 
     function LocationFactures(Request $request, $agencyId)
     {
-        $agency = Agency::where("visible",1)->find(deCrypId($agencyId));
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
         if (!$agency) {
             alert()->error("Echec", "Cette agence n'existe pas!");
         };
         return view("admin.factures", compact(["agency"]));
     }
-
-    
 }

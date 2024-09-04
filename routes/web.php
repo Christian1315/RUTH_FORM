@@ -5,11 +5,12 @@ use App\Http\Controllers\AgencyController;
 use App\Http\Controllers\HouseController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\StopHouseElectricityStateController;
-use App\Http\Controllers\Api\V1\IMMO\StopHouseWaterStateController;
+use App\Http\Controllers\StopHouseWaterStateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocataireController;
 use App\Http\Controllers\LocationElectrictyFactureController;
+use App\Http\Controllers\LocationWaterFactureController;
 use App\Http\Controllers\PaiementInitiationController;
 use App\Http\Controllers\ProprietorController;
 use App\Http\Controllers\RightController;
@@ -340,13 +341,26 @@ Route::prefix("electricity_facture")->group(function () {
         ##=========__ ARRETER LES ETATS D'ELECTRICITE DES MAISON ======
         Route::prefix("house_state")->group(function () {
             Route::post('stop', '_StopStatsOfHouse')->name("house_state._StopStatsOfHouse"); ###___ARRETER LES ETATS EN ELECTRICITE D'UNE MAISON
-            // Route::any('house/{houseId}/electricity_imprime', 'ImprimeElectricityHouseState')->name("house_state.ImprimeElectricityHouseState"); ###___IMPRIMER LES ETATS EN ELECTRICITE D'UNE MAISON
         });
-
 
         ###____impression des etats de factures eau-electricité
         Route::get("{state}/show_electricity_state_html", [StopHouseElectricityStateController::class, "ShowStateImprimeHtml"])->name("house_state.ImprimeElectricityHouseState");
-        Route::get("{state}/show_water_state_html", [StopHouseWaterStateController::class, "ShowStateImprimeHtml"]);
+    });
+});
+
+###___GESTION DES FACTURES D'ELECTRICITE DANS UNE LOCATION
+Route::prefix("water_facture")->group(function () {
+    Route::controller(LocationWaterFactureController::class)->group(function () {
+        Route::post("generate", "_GenerateWateracture")->name("water_facture._GenerateFacture"); ##__generer la facture
+        Route::any("{id}/payement", "_FactureWaterPayement")->name("water_facture._FactureWaterPayement"); ##__Payement d'une facture d'electricité
+    
+        ##=========__ ARRETER LES ETATS D'ELECTRICITE DES MAISON ======
+        Route::prefix("house_state")->group(function () {
+            Route::post('stop', '_StopWaterStatsOfHouse')->name("house_state._StopWaterStatsOfHouse"); ###___ARRETER LES ETATS EN ELECTRICITE D'UNE MAISON
+        });
+    
+        ###____impression des etats de factures eau-electricité
+        Route::get("{state}/show_water_state_html", [StopHouseWaterStateController::class, "ShowWaterStateImprimeHtml"])->name("house_state.ShowWaterStateImprimeHtml");
     });
 });
 

@@ -1,321 +1,94 @@
 <div>
-    <div class="d-flex header-bar">
-        <form class="d-flex" wire:submit="searching">
-            <input wire:model="search" class="form-control me-2" placeholder="Rechercher une facture ...">
-            <button type="submit" class="btn btn-sm bg-red"><i class="bi bi-search"></i> Rechercher</button>
-        </form>
-    </div>
-    <br>
-    <button wire:click="ShowHouseForStateImprimeForm" class="btn btn-sm btn-light text-uppercase"><i class="bi bi-file-earmark-pdf-fill"> </i> @if($show_house_for_state_imprime_form)Fermer @else Imprimer un état @endif </button>
-    <br>
-    <button wire:click="_Show(0)" class="btn btn-sm bg-red text-white text-uppercase"><i class="bi bi-stop-circle"></i> &nbsp; Arrêter les états</button>
+
+    <button class="btn btn-sm btn-light text-uppercase" data-bs-toggle="modal" data-bs-target="#generate_water_facture"><i class="bi bi-file-earmark-pdf-fill"> </i> Génerer une facture d'eau </button>
     <br>
 
-    <button wire:click="_Show(1)" class="btn btn-sm btn-light text-uppercase"><i class="bi bi-file-earmark-pdf-fill"> </i> @if($show_form) Fermer @else Génerer une facture d'eau @endif</button>
+    <button class="btn btn-sm bg-red text-white text-uppercase" data-bs-toggle="modal" data-bs-target="#stop_house_water_state"><i class="bi bi-stop-circle"></i> Arrêter les états</button>
     <br>
 
-    <button wire:click="DisplayFiltreOptions" class="btn btn-sm bg-light text-uppercase"><i class="bi bi-funnel"></i>@if($display_filtre_options) Fermer @else FILTRER LES FACTURES @endif</button> &nbsp;
+    <!-- GENERATE WATER FACTURE  -->
+    <div class="modal fade" id="generate_water_facture" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p class="">Génerer une facture d'eau</p>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form action="{{route('water_facture._GenerateFacture')}}" method="post">
+                                @csrf
+                                <div class="mb-3">
+                                    <span class="text-red">Choisir la location concernée</span>
+                                    <select required name="location" class="form-control">
+                                        @foreach($locations as $location)
+                                        <option value="{{$location['id']}}"> <strong>Maison: </strong> {{$location->House->name}} ; <strong>Index début: </strong> {{count($location->WaterFactures)!=0?$location->WaterFactures->first()->end_index: $location->Room->water_counter_start_index}} ; <strong>Locataire: </strong>{{$location->Locataire->name}} {{$location->Locataire->prenom}}</option>
+                                        @endforeach
+                                    </select>
 
-    <br><br>
-    @if($display_filtre_options)
-    <button wire:click="ShowFiltreByLocatorForm" class="btn btn-sm bg-light d-block"><i class="bi bi-people"></i> @if($filtre_by_locator) Fermer @else Par Locataire @endif</button>
-    <button wire:click="ShowFiltreByHouseForm" class="btn btn-sm bg-light d-block"><i class="bi bi-house-check-fill"></i>@if($filtre_by_house) Fermer @else Par maison @endif </button>
-    @endif
-
-    @if($filtre_by_locator)
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-6">
-                <div class="shadow p-2">
-                    <form wire:submit="FiltreByLocator">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <select required wire:model="locator" name="locator" class="form-control">
-                                    <option>Choisissez un locataire</option>
-                                    @foreach($locators as $locator)
-                                    <option value="{{$locator['id']}}"> {{$locator["name"]}} {{$locator["prenom"]}} </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <br>
+                                    @error("location")
+                                    <span class="text-red">{{$message}}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label for="">Index de fin</label>
+                                    <input type="number" required name="end_index" class="form-control" placeholder="Tapez l'Index de fin ...">
+                                    @error("end_index")
+                                    <span class="text-red">{{$message}}</span>
+                                    @enderror
+                                </div>
+                                <button type="submit" class="btn btn-sm bg-red"><i class="bi bi-card-list"></i> Génerer</button>
+                            </form>
                         </div>
                         <br>
-                        <div class="text-center">
-                            <button class="w-100 text-center bg-red btn btn-sm">Filtrer</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3"></div>
         </div>
     </div>
-    @endif
 
-    @if($filtre_by_house)
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-6">
-                <div class="shadow p-2">
-                    <form wire:submit="FiltreByHouse">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span class="text-red">Choisir la maison</span>
-                                <select required wire:model="house" name="house" class="form-control">
-                                    <option>Choisissez une maison</option>
-                                    @foreach($houses as $house)
-                                    <option value="{{$house['id']}}"> {{$house["name"]}} </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <br>
+    <!-- STOP  WATER STATE  -->
+    <div class="modal fade" id="stop_house_water_state" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p class="">Arrêt d'état d'eau d'une maison</p>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form action="{{route('house_state._StopWaterStatsOfHouse')}}" method="post">
+                                @csrf
+                                <div class="mb-3">
+                                    <span class="text-red">Choisir la maison concernée</span>
+                                    <select required name="house" class="form-control">
+                                        @foreach($locations as $location)
+                                        <option value="{{$location->House->id}}"> {{$location->House->name}} </option>
+                                        @endforeach
+                                    </select>
+
+                                    @error("house")
+                                    <span class="text-red">{{$message}}</span>
+                                    @enderror
+                                </div>
+                                <button type="submit" class="btn btn-sm bg-red"><i class="bi bi-stop-circle"></i> Arrêter l'état</button>
+                            </form>
                         </div>
                         <br>
-                        <div class="text-center">
-                            <button class="w-100 text-center bg-red btn btn-sm">Filtrer</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3"></div>
         </div>
     </div>
-    @endif
+
     <br>
-
-    <div class="">
-        <p class="text-center text-red"> {{$generalError}}</p>
-        <p class="text-center text-success"> {{$generalSuccess}} </p>
-    </div>
-
-    @if($show_state_imprime)
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="alert bg-dark text-white">
-                    Etat générés avec succès! Cliquez sur le lien ci-dessous pour la télécharger: <br>
-                    <a class="text-red" href="{{$state_html_url}}" target="_blank" rel="noopener noreferrer">Télécharger</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    @if($show_house_for_state_imprime_form)
-    <div class="row">
-        <div class="col-md-3"></div>
-        <div class="col-md-6">
-            <form wire:submit="SelectHouseForStateImprime" class="shadow-lg p-3 animate__animated animate__bounce">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <span class="">Choisissez la maison </span>
-                            <select wire:model="house" name="house" class="form-select form-control" aria-label="Default select example">
-                                <option>Choisissez la maison</option>
-                                @foreach($houses as $house)
-                                <option value="{{$house['id']}}">{{$house["name"]}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn bg-red">Selectionnez</button>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-3"></div>
-    </div>
-    @endif
-
-    @if($show_state_imprime_form)
-    <div class="row">
-        <div class="col-md-3"></div>
-        <div class="col-md-6">
-            <form wire:submit="ImprimeSelectState" class="shadow-lg p-3 animate__animated animate__bounce">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <span class="">Choisissez l'état </span>
-                            <select wire:model="state" name="state" class="form-select form-control" aria-label="Default select example">
-                                <option>Choisissez l'état à imprimer</option>
-                                @foreach($houseStates as $state)
-                                <option value="{{$state['id']}}">Maison: {{$state["house"]["name"]}}-- ({{$state["state_stoped_day"]}}) </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn bg-red"> Imprimer Maintenant</button>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-3"></div>
-    </div>
-    @endif
-
-    @if($showHouseFom)
-    <div class="row">
-        <div class="col-md-3"></div>
-        <div class="col-md-6">
-            @if(!$forLocation)
-            <form wire:submit="ActualizeLocations" class="shadow-lg p-3 animate__animated animate__bounce">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <span class="">Choisissez la maison concernée </span>
-                            <select wire:model="house" name="house" class="form-select form-control" aria-label="Default select example">
-                                <option>Choisissez la maison</option>
-                                @foreach($houses as $house)
-                                <option value="{{$house['id']}}">{{$house["name"]}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn bg-red"><i class="bi bi-eye-fill"></i> Voir l'état de la maison</button>
-                </div>
-            </form>
-            @else
-            <form wire:submit="showForm" class="shadow-lg p-3 animate__animated animate__bounce">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <span class="">Choisissez la maison concernée </span>
-                            <select wire:model="house" name="house" class="form-select form-control" aria-label="Default select example">
-                                <option>Choisissez la maison</option>
-                                @foreach($houses as $house)
-                                <option value="{{$house['id']}}">{{$house["name"]}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn bg-red">Choisir la maison</button>
-                </div>
-            </form>
-            @endif
-        </div>
-        <div class="col-md-3"></div>
-    </div>
-    @endif
-
-    @if($show_factures)
-    <div class="row">
-        <!-- LISTE DES FACTURES ASSOCIEES A CETTE LOCATION -->
-        <div class="col-md-12">
-            <div class="table-responsive shadow-lg p-3">
-                <table class="table table-striped table-sm p-3">
-                    <i wire:click="CloseFcaturesForm" style="font-size:20;cursor:pointer" class="bi bi-file-x float-right text-red"></i>
-                    <h6 class="">Total: <strong class="text-red"> {{count($currentLocationFactures)}} </strong> </h6>
-
-                    @if(count($currentLocationFactures)!=0)
-                    <thead class="bg_dark">
-                        <tr>
-                            <th class="text-center">N°</th>
-                            <th class="text-center">Maison</th>
-                            <th class="text-center">Chambre</th>
-                            <th class="text-center">Locataire</th>
-                            <th class="text-center">Index début</th>
-                            <th class="text-center">Index fin</th>
-                            <th class="text-center">Consommation</th>
-                            <th class="text-center">Montant</th>
-                            <th class="text-center">Commentaire</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach($currentLocationFactures as $facture)
-                        @if(!$facture["state_facture"])
-                        <tr class="align-items-center">
-                            <td class="text-center">{{$loop->index+1}}</td>
-                            <td class="text-center">{{$facture["location"]["house"]["name"]}}</td>
-                            <td class="text-center">{{$facture["location"]["room"]["number"]}} </td>
-                            <td class="text-center">{{$facture["location"]["locataire"]["name"]}} {{$facture["location"]["locataire"]["prenom"]}}</td>
-                            <td class="text-center"> {{$facture["start_index"]}} </td>
-                            <td class="text-center"> {{$facture["end_index"]}} </td>
-                            <td class="text-center"> {{$facture["consomation"]}} </td>
-                            <td class="text-center">{{$facture['amount']}}</td>
-                            <td class="text-center">
-                                <textarea name="" class="form-control" id=""> {{$facture['comments']}} </textarea>
-                            </td>
-                            <td class="text-center">
-                                @if($facture['paid'])
-                                <small style="font-size: 10px;" class="text-success shadow roudered p-2">Déjà Payé </small>
-                                @else
-                                <span class="text-red shadow roudered p-2">Impayé </span>
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                @if($facture['paid'])
-                                ---
-                                @else
-                                <button wire:click="PayFacture({{$facture['id']}})" class="btn btn-sm bg-red"> <i class="bi bi-currency-exchange"></i> Payer maintenant</button>
-                                @endif
-                            </td>
-                        </tr>
-                        @endif
-                        @endforeach
-                    </tbody>
-                    @else
-                    <p class="text-center text-red">Aucune facture disponible!</p>
-                    @endif
-                </table>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    @if($show_form)
-    <div class="row">
-        <div class="col-md-3"></div>
-        <div class="col-md-6">
-            <div class="shadow-lg roundered p-3 mb-3">
-                <form wire:submit="GenerateFacture">
-                    <div class="mb-3">
-                        <span class="d-block">Maison : <small class="text-red">{{$current_house["name"]}} </small> </span>
-                        <span class=""> Choisissez la location</span>
-                        <span class="text-red"> {{$location_error}} </span>
-                        <select name="location" wire:model="location" class="form-select form-control" aria-label="Default select example">
-                            <option>Choisissez la location</option>
-                            @foreach($locations as $location)
-                            <option value="{{$location['id']}}">Maison: ((<span class="text-red"> {{$location["house"]["name"]}}</span>)); Locataire :(( <span class="text-red"> {{$location["locataire"]["name"]}} {{$location["locataire"]["prenom"]}} </span> )) ; Index début: {{$location["room"]["electricity_counter_start_index"]}} </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <span class="">Index de fin </span>
-                        <span class="text-red"> {{$end_index_error}} </span>
-                        <input wire:model="end_index" type="number" name="end_index" wire:model="end_index" placeholder="Précisez l'index de fin ...." class="form-control" id="">
-                    </div>
-                    <div class="">
-                        <button type="submit" class="btn btn-sm bg-red">Générer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="col-md-3"></div>
-    </div>
-    @endif
-
-    <br><br>
     <div class="row">
         <div class="col-12">
-            @if($actualized)
-            <h6 class="text-center text-success">Etat actuel de la maison</h6>
-            <button wire:click="StopElectricityHouseState({{$houseId}})" class="btn btn-sm bg-red float-right mb-3">Arrêter l'etat maintenant</button>
-            @else
             <h5 class="text-center">Liste des locations ayant d'eau dans cette agence</h5>
-            @endif
+            <h4 class="">Total: <strong class="text-red"> {{count($locations)}} </strong> </h4>
+
             <div class="table-responsive table-responsive-list shadow-lg">
-                <table class="table table-striped table-sm">
-                    <h4 class="">Total: <strong class="text-red"> {{count($locations)}} </strong> </h4>
+                <table id="myTable" class="table table-striped table-sm">
                     <thead class="bg_dark">
                         <tr>
                             <th class="text-center">N°</th>
@@ -334,47 +107,91 @@
                             <th class="text-center">Payer</th>
                         </tr>
                     </thead>
-                    @if(count($locations)>0)
                     <tbody>
                         @foreach($locations as $location)
                         <tr class="align-items-center">
-                            <td class="text-center">{{$loop->index+1}}</td>
-                            <td class="text-center">{{$location["locataire"]["name"]}} {{$location["locataire"]["prenom"]}}</td>
-                            <td class="text-center">{{$location["house"]["name"]}}</td>
-                            <td class="text-center">{{$location["locataire"]["phone"]}}</td>
-                            <td class="text-center">{{$location["room"]["water_counter_start_index"]}}</td>
-                            <td class="text-center"> <strong class="text-red"> {{$location["end_index"]}}</strong> </td>
-                            <td class="text-center"> <strong class=""> {{$location["room"]["unit_price"]}} </strong> </td>
-                            <td class="text-center"> <strong class="text-red shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["total_un_paid_facture_amount"]}} fcfa </strong> </td>
-                            <td class="text-center"> <strong class="text-success shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["current_amount"]}} fcfa </strong> </td>
-                            <td class="text-center"> <strong class="text-success shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["paid_facture_amount"]}} fcfa </strong> </td>
-                            <td class="text-center text-red"> {{$location["nbr_un_paid_facture_amount"]}}</td>
-                            <td class="text-center"> <strong class="text-red shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["un_paid_facture_amount"]}} fcfa </strong> </td>
-                            <td class="text-center"> <strong class="text-success shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["rest_facture_amount"]}} fcfa </strong> </td>
-                            <td class="text-center">
-                                <button wire:click="ShowLocationFactures({{$location['id']}})" class="btn bg-red" type="button">
+                            <td class="text-center">{{$location["id"]}}</td>
+                            <td class="text-center">{{$location["Locataire"]["name"]}} {{$location["Locataire"]["prenom"]}}</td>
+                            <td class="text-center">{{$location["House"]["name"]}}</td>
+                            <td class="text-center">{{$location["Locataire"]["phone"]}}</td>
+                            <td class="text-center">{{$location["Room"]["water_counter_start_index"]}}</td>
+                            <td class="text-center"> <strong class="text-red"> {{$location->Room->water_counter_start_index?$location["end_index"]:0}}</strong> </td>
+                            <td class="text-center"> <strong class=""> {{$location->Room->unit_price}} </strong> </td>
+                            <td class="text-center"> <strong class="text-red shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["total_un_paid_facture_amount"]?$location["total_un_paid_facture_amount"]:0}} fcfa </strong> </td>
+                            <td class="text-center"> <strong class="text-success shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["current_amount"]?$location["current_amount"]:0}} fcfa </strong> </td>
+                            <td class="text-center"> <strong class="text-success shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["paid_facture_amount"]?$location["paid_facture_amount"]:0}} fcfa </strong> </td>
+                            <td class="text-center text-red"> {{$location["nbr_un_paid_facture_amount"]?$location["nbr_un_paid_facture_amount"]:0}}</td>
+                            <td class="text-center"> <strong class="text-red shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["un_paid_facture_amount"]?$location["un_paid_facture_amount"]:0}} fcfa </strong> </td>
+                            <td class="text-center"> <strong class="text-success shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["rest_facture_amount"]?$location["rest_facture_amount"]:0}} fcfa </strong> </td>
+                            <td class="text-center d-flex">
+                                <button data-bs-toggle="modal" data-bs-target="#ShowLocationFactures_{{$location['id']}}" class="btn btn-sm bg-red" type="button">
                                     <i class="bi bi-currency-exchange"></i>&nbsp; Payer
                                 </button>
+                                <button class="btn btn-sm btn-light text-uppercase" data-bs-toggle="modal" data-bs-target="#state_impression_{{$location['id']}}"><i class="bi bi-file-earmark-pdf-fill"> </i> Imprimer</button>
                             </td>
                         </tr>
+
+                        <!-- ###### FACTURES D'EAU -->
+                        <div class="modal fade" id="ShowLocationFactures_{{$location['id']}}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <span class="">Location:<strong>Maison: </strong> {{$location->House->name}} ; <strong>Index début: </strong> {{count($location->WaterFactures)!=0?$location->WaterFactures->first()->end_index: $location->Room->water_counter_start_index}} ;<strong>Index fin: </strong>{{$location->end_index}}; <strong>Locataire: </strong>{{$location->Locataire->name}} {{$location->Locataire->prenom}} </span>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul class="list-group">
+                                            @foreach($location->WaterFactures as $facture)
+                                            <li class="list-group-item mb-3 ">
+                                                <strong>Maison: </strong> {{$location->House->name}} ;
+                                                <strong>Index début: </strong> <span class="text-red"> {{$facture->start_index}}</span> ;
+                                                <strong>Index fin: </strong> <span class="text-red"> {{$facture->end_index}}</span>;
+                                                <strong>Consommation :</strong> <span class="text-red">{{$facture->consomation}}</span> ;
+                                                <strong>Montant: </strong> <span class="text-red"><i class="bi bi-currency-exchange"></i> {{$facture->amount}} </span>;
+                                                <strong>Description: </strong> <textarea class="form-control" name="" rows="1" placeholder="{{$facture->comments}}" id=""></textarea> ;
+                                                <strong>Statut :</strong>
+                                                @if($facture->paid) <span class="bg-success">Payé </span> @else
+                                                <span class="bg-red">Impayé </span>
+                                                <br>
+                                                <a href="{{route('water_facture._FactureWaterPayement',crypId($facture->id))}}" class="btn btn-sm bg-red"> <i class="bi bi-currency-exchange"></i> Payer maintenant</a>
+                                                @endif
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                        @if(count($location->WaterFactures)==0)
+                                        <p class="text-center text-red">Aucune facture disponible</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ###### IMPRESSION DES ETATS -->
+                        <div class="modal fade" id="state_impression_{{$location['id']}}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <span class="">Location: <strong>Maison: </strong> {{$location->House->name}} ; <strong>Index début: </strong> {{count($location->ElectricityFactures)!=0?$location->ElectricityFactures->first()->end_index: $location->Room->electricity_counter_start_index}} ;<strong>Index fin: </strong>{{$location->end_index}}; <strong>Locataire: </strong>{{$location->Locataire->name}} {{$location->Locataire->prenom}} </span>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul class="list-group">
+                                            @foreach($location->House->WaterFacturesStates as $state)
+                                            <li class="list-group-item mb-3 ">
+                                                <strong>Date d'arrêt: </strong> {{$state->state_stoped_day}}
+                                                <br>
+                                                <a target="_blank" href="{{route('house_state.ShowWaterStateImprimeHtml',crypId($state->id))}}" class="btn btn-sm bg-red"><i class="bi bi-file-earmark-pdf-fill"> </i> Imprimer</a>
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                        @if(count($location->House->WaterFacturesStates)==0)
+                                        <p class="text-center text-red">Aucun état disponible</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         @endforeach
                     </tbody>
-                    @else
-                    <p class="text-center text-red">Aucune location disposant d'eau!</p>
-                    @endif
                 </table>
-            </div>
-            <!-- pagination -->
-            <div class="justify-center my-2">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                    </ul>
-                </nav>
             </div>
         </div>
     </div>

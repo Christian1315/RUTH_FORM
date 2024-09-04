@@ -110,4 +110,9 @@ class House extends Model
     {
         return $this->hasMany(StopHouseElectricityState::class, "house");
     }
+
+    function WaterFacturesStates(): HasMany
+    {
+        return $this->hasMany(StopHouseWaterState::class, "house");
+    }
 }
