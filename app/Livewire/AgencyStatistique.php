@@ -44,67 +44,19 @@ class AgencyStatistique extends Component
     public $currentActivelocation;
     public $currentHouse = [];
 
+    public $current_agency;
+
     ###___HOUSES
     function refreshThisAgencyHouses()
     {
-        $agency_response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/agency/" . $this->agency['id'] . "/retrieve")->json();
-        if (!$agency_response) {
-            return redirect("/")->with("error", "Une erreure est survenue! Veuillez réessayez plus tard!");
-        } else {
-            if (!$agency_response["status"]) {
-                $this->houses = [];
-                $this->houses_count = 0;
-            } else {
-                ###__TRIONS CEUX QUI SE TROUVENT DANS L'AGENCE ACTUELLE
-                ##__on recupere les maisons qui appartiennent aux propriétaires
-                ##__ se trouvant dans cette agence
-                $agency_houses = [];
-                foreach ($agency_response["data"]["__proprietors"] as $proprio) {
-                    if ($proprio["agency"]["id"] == $this->agency['id']) { ##__si le proprio appartient à l'agence
-                        $proprio_houses = $proprio["houses"];
-                        foreach ($proprio_houses as $house) {
-                            array_push($agency_houses, $house);
-                        }
-                    }
-                }
-                $this->houses = $agency_houses;
-                $this->houses_count = count($this->houses);
-            }
-        }
-    }
-
-    function refreshCurrentHouse($houseId)
-    {
-        $response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/house/$houseId/retrieve")->json();
-
-        if (!$response) {
-            $this->currentHouse = [];
-        } else {
-            if (!$response["status"]) {
-                $this->currentHouse = [];
-            } else {
-                $this->currentHouse = $response["data"];
-            }
-        }
-
-        // dd($this->currentHouse);
+        $this->houses = $this->current_agency->_Houses;
+        $this->houses_count = count($this->houses);
     }
 
     function mount($agency)
     {
         set_time_limit(0);
-
-        $this->agency = $agency;
-
-        $this->BASE_URL = env("BASE_URL");
-        // session()->forget("token");
-        $this->token = session()->get("token");
-        $this->userId = session()->get("userId");
-
-        $this->headers = [
-            "Authorization" => "Bearer " . $this->token,
-        ];
-
+        $this->current_agency = $agency;
         // LOCATIONS
         $this->refreshThisAgencyHouses();
     }
@@ -135,7 +87,6 @@ class AgencyStatistique extends Component
             $this->generalError = "";
         }
         $this->current_houseId = $houseId;
-        $this->refreshCurrentHouse($houseId);
 
         if ($this->show_locatorsBefore) {
             $this->show_locatorsBefore = false;
@@ -165,7 +116,6 @@ class AgencyStatistique extends Component
 
         // dd($this->afterStopDateTotal_to_paid);
         $this->current_houseId = $houseId;
-        $this->refreshCurrentHouse($houseId);
 
         if ($this->show_locatorsAfter) {
             $this->show_locatorsAfter = false;

@@ -215,6 +215,29 @@ class AdminController extends Controller
         return view("admin.electricity", compact("agency"));
     }
 
+    function AgencyStatistique(Request $request, $agencyId)
+    {
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
+        ####____
+
+        return view("admin.agency-statistique", compact("agency"));
+    }
+
+
+    #####____BILAN
+    function Filtrage(Request $request, $agencyId)
+    {
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
+        ####____
+
+        return view("admin.filtrage", compact("agency"));
+    }
 
 
 
@@ -252,24 +275,6 @@ class AdminController extends Controller
     function Statistique(Request $request)
     {
         return view("admin.statistiques");
-    }
-
-    function AgencyStatistique(Request $request, $agencyId)
-    {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
-        ####____
-
-        return view("admin.agency-statistique", compact("agency"));
     }
 
     function AgencyRecovery05(Request $request, $agencyId)
@@ -344,24 +349,6 @@ class AdminController extends Controller
         return view("admin.performance", compact("agency"));
     }
 
-    function Filtrage(Request $request, $agencyId)
-    {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
-        ####____
-
-        return view("admin.filtrage", compact("agency"));
-    }
-
     function RecoveryAtAnyDate(Request $request, $agencyId)
     {
         $id = Crypt::decrypt($agencyId);
@@ -384,8 +371,6 @@ class AdminController extends Controller
     {
         return view("admin.rights");
     }
-
-
 
     function Eau(Request $request, $agencyId)
     {

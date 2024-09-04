@@ -31,6 +31,10 @@ class House extends Model
         "commission_percent"
     ];
 
+    function _Agency() : BelongsTo {
+        return $this->belongsTo(Agency::class, "agency");
+    }
+
     function Owner(): BelongsTo
     {
         return $this->belongsTo(User::class, "owner");

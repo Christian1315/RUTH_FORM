@@ -51,19 +51,6 @@
         </div>
     </div>
 
-    @if($showCautions)
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="alert bg-dark text-white">
-                    Cautions générées avec succès! Cliquez sur le lien ci-dessous pour la télécharger: <br>
-                    <a class="text-red" href="{{$cautions_link}}" target="_blank" rel="noopener noreferrer">Télécharger</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
     <!-- ADD HOUSE -->
     <div class="modal fade" id="addHouse" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">

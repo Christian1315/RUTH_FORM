@@ -189,6 +189,16 @@ Route::controller(AdminController::class)->group(function () {
 
     Route::get('/{agency}/filtrage', "Filtrage")->name("filtrage");
 
+
+
+
+
+
+
+
+
+
+
     ###___GENERALES ROUTES
     Route::get('dashbord', "Admin")->name("dashbord");
     Route::get('agency', "Agencies")->name("agency");
@@ -284,24 +294,33 @@ Route::prefix("location")->group(function () {
         ##=========__ ARRETER LES ETATS D'ELECTRICITE DES MAISON ======
         Route::any('stop', '_StopStatsOfHouse')->name("location._StopStatsOfHouse");
 
-
-
-
-
-
-
-
-
-
-
-
-        Route::any('{id}/delete', 'DeleteLocation')->name("location.DeleteLocation"); #SUPPRESSION D'UNE LOCATION 
-
-
         ###___electricite
         Route::any('agency/{agencyId}/electricity', 'ElectricityLocations'); ##__RECUPERATION DES LOCATIONS AYANT D'ELECTRICITE
         ###___eau
         Route::any('agency/{agencyId}/water', 'WaterLocations'); ##__RECUPERATION DES LOCATIONS AYANT D'EAU
+
+
+        ####__STATISTIQUE DES AGENCES (payement avant & apres arret des etats)
+        ###___FILTRE
+        Route::any('filtre_by_date', '_FiltreByDate'); #FILTRER PAR DATE
+        Route::any('{houseId}/filtre_before_stateDate_stoped', 'FiltreBeforeStateDateStoped')->name("location.FiltreBeforeStateDateStoped"); #FILTRER LES PAIEMENTS AVANT ARRET DES ETATS
+        Route::any('{houseId}/filtre_after_stateDate_stoped', 'FiltreAfterStateDateStoped')->name("location.FiltreAfterStateDateStoped"); #FILTRER LES PAIEMENTS APRES ARRET DES ETATS
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Route::any('{agency}/filtre_after_echeanceDate', 'FiltreAfterEcheanceDate');
+        Route::any('{agency}/filtre_at_any_date', 'FiltreAtAnyDate');
+
 
 
         Route::any("generate_cautions_by_period", "_ManageCautionsByPeriod");
@@ -353,12 +372,12 @@ Route::prefix("water_facture")->group(function () {
     Route::controller(LocationWaterFactureController::class)->group(function () {
         Route::post("generate", "_GenerateWateracture")->name("water_facture._GenerateFacture"); ##__generer la facture
         Route::any("{id}/payement", "_FactureWaterPayement")->name("water_facture._FactureWaterPayement"); ##__Payement d'une facture d'electricité
-    
+
         ##=========__ ARRETER LES ETATS D'ELECTRICITE DES MAISON ======
         Route::prefix("house_state")->group(function () {
             Route::post('stop', '_StopWaterStatsOfHouse')->name("house_state._StopWaterStatsOfHouse"); ###___ARRETER LES ETATS EN ELECTRICITE D'UNE MAISON
         });
-    
+
         ###____impression des etats de factures eau-electricité
         Route::get("{state}/show_water_state_html", [StopHouseWaterStateController::class, "ShowWaterStateImprimeHtml"])->name("house_state.ShowWaterStateImprimeHtml");
     });

@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-12">
             <div class="table-responsive">
-                <table class="table table-striped table-sm">
+                <table id="myTable" class="table table-striped table-sm">
                     <h4 class="">Total: <strong class="text-red"> {{count($factures)}} </strong> </h4>
                     <thead class="bg_dark">
                         <tr>
