@@ -4,11 +4,12 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AgencyController;
 use App\Http\Controllers\HouseController;
 use App\Http\Controllers\LocationController;
-use App\Http\Controllers\Api\V1\IMMO\StopHouseElectricityStateController;
+use App\Http\Controllers\StopHouseElectricityStateController;
 use App\Http\Controllers\Api\V1\IMMO\StopHouseWaterStateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocataireController;
+use App\Http\Controllers\LocationElectrictyFactureController;
 use App\Http\Controllers\PaiementInitiationController;
 use App\Http\Controllers\ProprietorController;
 use App\Http\Controllers\RightController;
@@ -174,7 +175,6 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/{agency}/unpaid_locators', "UnPaidLocator")->name("unpaid-locator");
     Route::get('/{agency}/location', "Location")->name("location");
 
-
     Route::get('/{agency}/electricity/locations', "Electricity")->name("electricity");
     Route::get('/{agency}/eau/locations', "Eau")->name("eau");
 
@@ -334,22 +334,19 @@ Route::prefix("sold")->group(function () {
 ###___GESTION DES FACTURES D'ELECTRICITE DANS UNE LOCATION
 Route::prefix("electricity_facture")->group(function () {
     Route::controller(LocationElectrictyFactureController::class)->group(function () {
-        Route::any("generate", "_GenerateFacture"); ##__generer la facture
-        Route::any("location/{locationId}/retrieve", "RetrieveLocationFactures"); ##__recuperer les factures d'electricité d'une location
-        Route::any("{id}/retrieve", "RetrieveFacture"); ##__recuperer une facture d'electricité
-        Route::any("{id}/delete", "_DeleteFacture"); ##__suppression d'une facture d'electricité
-        Route::any("{id}/payement", "_FacturePayement"); ##__suppression d'une facture d'electricité
+        Route::post("generate", "_GenerateFacture")->name("electricity_facture._GenerateFacture"); ##__generer la facture
+        Route::any("{id}/payement", "_FacturePayement")->name("electricity_facture._FacturePayement"); ##__Payement d'une facture d'electricité
 
         ##=========__ ARRETER LES ETATS D'ELECTRICITE DES MAISON ======
         Route::prefix("house_state")->group(function () {
-            Route::controller(StopHouseElectricityStateController::class)->group(function () {
-                Route::any('stop', '_StopStatsOfHouse');
-                Route::any('house/{houseId}/all', 'RetrieveHouseStates');
-                Route::any('{id}/retrieve', 'RetrieveState');
-                Route::any('all', 'GetAllStates');
-                Route::any('house/{houseId}/electricity_imprime', 'ImprimeElectricityHouseState');
-            });
+            Route::post('stop', '_StopStatsOfHouse')->name("house_state._StopStatsOfHouse"); ###___ARRETER LES ETATS EN ELECTRICITE D'UNE MAISON
+            // Route::any('house/{houseId}/electricity_imprime', 'ImprimeElectricityHouseState')->name("house_state.ImprimeElectricityHouseState"); ###___IMPRIMER LES ETATS EN ELECTRICITE D'UNE MAISON
         });
+
+
+        ###____impression des etats de factures eau-electricité
+        Route::get("{state}/show_electricity_state_html", [StopHouseElectricityStateController::class, "ShowStateImprimeHtml"])->name("house_state.ImprimeElectricityHouseState");
+        Route::get("{state}/show_water_state_html", [StopHouseWaterStateController::class, "ShowStateImprimeHtml"]);
     });
 });
 
@@ -375,11 +372,6 @@ Route::get("{agencyId}/{houseId}/{action}/locators_state_stoped", [LocationContr
 Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_05_agency", [LocataireController::class, "ShowAgencyTaux05"]);
 Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_10_agency", [LocataireController::class, "ShowAgencyTaux10"]);
 Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_qualitatif_agency", [LocataireController::class, "ShowAgencyTauxQualitatif"]);
-
-###____impression des etats de factures eau-electricité
-Route::get("{state}/show_electricity_state_html", [StopHouseElectricityStateController::class, "ShowStateImprimeHtml"]);
-Route::get("{state}/show_water_state_html", [StopHouseWaterStateController::class, "ShowStateImprimeHtml"]);
-
 
 ###___impression du dernier etat d'une maison
 // Route::get("{house}/show_house_state_html", [HouseController::class, "ShowHouseStateImprimeHtml"]);

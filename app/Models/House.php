@@ -105,4 +105,9 @@ class House extends Model
     {
         return $this->hasMany(PaiementInitiation::class, "house");
     }
+
+    function ElectricityFacturesStates(): HasMany
+    {
+        return $this->hasMany(StopHouseElectricityState::class, "house");
+    }
 }

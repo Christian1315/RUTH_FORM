@@ -33,10 +33,10 @@
                             <td class="text-center">{{$facture['amount']}}</td>
                             <td class="text-center text-red"><b>{{$facture['echeance_date']}} </b> </td>
                             <td class="text-center">
-                                <textarea name="" rows="1" class="form-control" id=""> {{$facture['comments']}} </textarea>
+                                <textarea name="" rows="1" class="form-control" id="" placeholder="{{$facture->comments}}"></textarea>
                             </td>
                             <td class="text-center">{{$facture['Type']['name']}}</td>
-                            <td class="text-center"> <button class="bg-success btn btn-sm">{{$facture['Status']['name']}}</button> </td>
+                            <td class="text-center"><span class="@if($facture->status==2) bg-success @elseif($facture->status==3 || $facture->status==4)  bg-danger @else bg-warning @endif">{{$facture->Status->name}} </span></td>
                         </tr>
                         @endforeach
                     </tbody>
