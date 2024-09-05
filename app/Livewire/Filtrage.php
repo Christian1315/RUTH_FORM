@@ -70,14 +70,6 @@ class Filtrage extends Component
 
         $this->agency = $agency;
 
-        $this->BASE_URL = env("BASE_URL");
-        $this->token = session()->get("token");
-        $this->userId = session()->get("userId");
-
-        $this->headers = [
-            "Authorization" => "Bearer " . $this->token,
-        ];
-
         $this->refreshThisAgencyBilan();
         $this->refreshSupervisors();
     }

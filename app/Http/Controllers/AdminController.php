@@ -239,6 +239,31 @@ class AdminController extends Controller
         return view("admin.filtrage", compact("agency"));
     }
 
+    #####____RECOUVREMENT A LA DATE 05
+    function AgencyRecovery05(Request $request, $agencyId)
+    {
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
+        ####____
+
+        return view("admin.recovery05", compact("agency"));
+    }
+
+    #####____RECOUVREMENT A LA DATE 10
+    function AgencyRecovery10(Request $request, $agencyId)
+    {
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
+        ####____
+
+        return view("admin.recovery10", compact("agency"));
+    }
+
+
 
 
 
@@ -277,42 +302,8 @@ class AdminController extends Controller
         return view("admin.statistiques");
     }
 
-    function AgencyRecovery05(Request $request, $agencyId)
-    {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
-        ####____
-
-        return view("admin.recovery05", compact("agency"));
-    }
-
-    function AgencyRecovery10(Request $request, $agencyId)
-    {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
-        ####____
-
-        return view("admin.recovery10", compact("agency"));
-    }
-
+    
+   
     function AgencyRecoveryQualitatif(Request $request, $agencyId)
     {
         $id = Crypt::decrypt($agencyId);

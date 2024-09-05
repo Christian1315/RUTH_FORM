@@ -384,6 +384,22 @@ Route::prefix("water_facture")->group(function () {
 });
 
 
+####____impression des taux  locataires
+##__05
+Route::get("{agencyId}/show_taux_05_agency_simple", [LocataireController::class, "_ShowAgencyTaux05_Simple"])->name("taux._ShowAgencyTaux05_Simple");
+Route::get("{agencyId}/{supervisor}/show_taux_05_agency_by_supervisor", [LocataireController::class, "_ShowAgencyTaux05_By_Supervisor"])->name("taux._ShowAgencyTaux05_By_Supervisor");
+Route::get("{agencyId}/{house}/show_taux_05_agency_by_house", [LocataireController::class, "_ShowAgencyTaux05_By_House"])->name("taux._ShowAgencyTaux05_By_House");
+
+##__10
+Route::get("{agencyId}/show_taux_10_agency_simple", [LocataireController::class, "_ShowAgencyTaux10_Simple"])->name("taux._ShowAgencyTaux10_Simple");
+Route::get("{agencyId}/{supervisor}/show_taux_10_agency_by_supervisor", [LocataireController::class, "_ShowAgencyTaux10_By_Supervisor"])->name("taux._ShowAgencyTaux10_By_Supervisor");
+Route::get("{agencyId}/{house}/show_taux_10_agency_by_house", [LocataireController::class, "_ShowAgencyTaux10_By_House"])->name("taux._ShowAgencyTaux10_By_House");
+
+
+Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_05_agency", [LocataireController::class, "ShowAgencyTaux05"])->name("taux.ShowAgencyTaux05");
+Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_10_agency", [LocataireController::class, "ShowAgencyTaux10"]);
+Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_qualitatif_agency", [LocataireController::class, "ShowAgencyTauxQualitatif"]);
+
 
 
 
@@ -401,10 +417,6 @@ Route::prefix("water_facture")->group(function () {
 
 Route::get("{agencyId}/{houseId}/{action}/locators_state_stoped", [LocationController::class, "_ShowLocatorStateStoped"]);
 
-####____impression des taux locataires
-Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_05_agency", [LocataireController::class, "ShowAgencyTaux05"]);
-Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_10_agency", [LocataireController::class, "ShowAgencyTaux10"]);
-Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_qualitatif_agency", [LocataireController::class, "ShowAgencyTauxQualitatif"]);
 
 ###___impression du dernier etat d'une maison
 // Route::get("{house}/show_house_state_html", [HouseController::class, "ShowHouseStateImprimeHtml"]);

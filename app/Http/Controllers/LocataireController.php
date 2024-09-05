@@ -6,6 +6,7 @@ use App\Models\Agency;
 use App\Models\CardType;
 use App\Models\Country;
 use App\Models\Departement;
+use App\Models\House;
 use App\Models\Locataire;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -70,6 +71,199 @@ class LocataireController extends Controller
             // 'discounter.required' => "Veuillez préciser s'il y a un décompteur ou pas!",
             // 'discounter.boolean' => "Ce champ doit être de type booléen",
         ];
+    }
+
+    ##########===== STATISTIC HELPERS ===============#############
+    #####_____FILTRATGE
+    static function _recovery05ToEcheanceDate($request, $agencyId, $inner_call = false)
+    {
+        $agency = Agency::where(["visible" => 1])->find($agencyId);
+
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        }
+
+        #####____locataires ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locators_that_paid_after_state_stoped_day_of_all_houses = [];
+
+        #####____location ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locations_that_paid_after_state_stoped_day_of_all_houses = [];
+        $locations_that_do_not__paid_after_state_stoped_day_of_all_houses = [];
+
+        ###____PARCOURONS TOUTES LES MAISONS DE CETTE AGENCE, PUIS FILTRONS LES ETATS
+        foreach ($agency->_Houses as $house) {
+
+            ###___DERNIER ETAT D'ARRET DE CETTE MAISON
+            $house_last_state = $house->States->last();
+            if ($house_last_state) {
+                ###__DATE DU DERNIER ARRET DES ETATS DE CETTE MAISON
+                $house_last_state_date = date("Y/m/d", strtotime($house_last_state->stats_stoped_day));
+
+                ###__LES FACTURES DE CET DERNIER ETAT
+                $house_last_state_factures = $house_last_state->Factures;
+
+                foreach ($house_last_state_factures as $facture) {
+                    ###___Echéance date
+                    $location_echeance_date = date("Y/m/d", strtotime($facture->Location->previous_echeance_date));
+
+                    $location_payement_date = date("Y/m/d",  strtotime($facture->echeance_date));
+
+                    // dd($house_last_state_date, $location_echeance_date, $location_payement_date);
+                    ####___determinons le jour de la date d'écheance
+                    $day_of_this_date = explode("/", $location_echeance_date)[2];
+                    ###____
+                    ###___on verifie si la date de paiement se trouve entre *la date d'arrêt* de l'etat et *la date d'échéance*
+                    if ($house_last_state_date > $location_payement_date && $location_payement_date <= $location_echeance_date) {
+                        ###___on verifie si le jour de la date d'écheance est le 05
+                        if ($day_of_this_date == 05) {
+                            if ($inner_call) {
+                                ###___pour un out_call, 
+                                ###____on renvoie les locations en lieu et place des locataires
+                                array_push($locations_that_paid_after_state_stoped_day_of_all_houses, $facture->Location);
+                            }
+                            array_push($locators_that_paid_after_state_stoped_day_of_all_houses, $facture->Location->Locataire);
+                        } else {
+                            if ($inner_call) {
+                                ###___pour un out_call, 
+                                ###____on renvoie aussi les locations n'ayant pas payés dans la période
+                                array_push($locations_that_do_not__paid_after_state_stoped_day_of_all_houses, $facture->Location);
+                            }
+                        }
+                    }
+                };
+            }
+        };
+        // dd($locators_that_paid_after_state_stoped_day_of_all_houses);
+
+        if ($inner_call) {
+            $data["locations_that_paid"] = $locations_that_paid_after_state_stoped_day_of_all_houses;
+            $data["locations_that_do_not_paid"] = $locations_that_do_not__paid_after_state_stoped_day_of_all_houses;
+            return $data;
+        }
+        // dd($locators_that_paid_after_state_stoped_day_of_all_houses);
+    }
+
+    static function _recovery10ToEcheanceDate($request, $agencyId, $inner_call = false)
+    {
+        $agency = Agency::where(["visible" => 1])->find($agencyId);
+
+        #####____locataires ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locators_that_paid_after_state_stoped_day_of_all_houses = [];
+
+        #####____location ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locations_that_paid_after_state_stoped_day_of_all_houses = [];
+        $locations_that_do_not__paid_after_state_stoped_day_of_all_houses = [];
+
+        ###____PARCOURONS TOUTES LES MAISONS DE CETTE AGENCE, PUIS FILTRONS LES ETATS
+        foreach ($agency->_Houses as $house) {
+
+            ###___DERNIER ETAT D'ARRET DE CETTE MAISON
+            $house_last_state = $house->States->last();
+            if ($house_last_state) {
+                ###__DATE DU DERNIER ARRET DES ETATS DE CETTE MAISON
+                $house_last_state_date = date("Y/m/d", strtotime($house_last_state->stats_stoped_day));
+
+                ###__LES FACTURES DE CET DERNIER ETAT
+                $house_last_state_factures = $house_last_state->Factures;
+
+                foreach ($house_last_state_factures as $facture) {
+                    ###___Echéance date
+                    $location_echeance_date = date("Y/m/d", strtotime($facture->Location->previous_echeance_date));
+
+                    $location_payement_date = date("Y/m/d",  strtotime($facture->echeance_date));
+
+                    ####___determinons le jour de la date d'écheance
+                    $day_of_this_date = explode("/", $location_echeance_date)[2];
+                    ###____
+                    ###___on verifie si la date de paiement se trouve entre *la date d'arrêt* de l'etat et *la date d'échéance*
+                    if ($house_last_state_date > $location_payement_date && $location_payement_date <= $location_echeance_date) {
+                        ###___on verifie si le jour de la date d'écheance est le 10
+                        if ($day_of_this_date == 10) {
+                            if ($inner_call) {
+                                ###___pour un out_call, 
+                                ###____on renvoie les locations en lieu et place des locataires
+                                array_push($locations_that_paid_after_state_stoped_day_of_all_houses, $facture->Location);
+                            }
+                            array_push($locators_that_paid_after_state_stoped_day_of_all_houses, $facture->Location->Locataire);
+                        } else {
+                            if ($inner_call) {
+                                ###___pour un out_call, 
+                                ###____on renvoie aussi les locations n'ayant pas payés dans la période
+                                array_push($locations_that_do_not__paid_after_state_stoped_day_of_all_houses, $facture->Location);
+                            }
+                        }
+                    }
+                };
+            }
+        };
+
+        if ($inner_call) {
+            $data["locations_that_paid"] = $locations_that_paid_after_state_stoped_day_of_all_houses;
+            $data["locations_that_do_not_paid"] = $locations_that_do_not__paid_after_state_stoped_day_of_all_houses;
+            return $data;
+        }
+    }
+
+    function _recoveryQualitatif($request, $agencyId, $inner_call = false)
+    {
+        $agency = Agency::where(["visible" => 1])->find($agencyId);
+
+        #####____locataires ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locators_that_paid_after_state_stoped_day_of_all_houses = [];
+
+        #####____location ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locations_that_paid_after_state_stoped_day_of_all_houses = [];
+        $locations_that_do_not__paid_after_state_stoped_day_of_all_houses = [];
+
+        ###____PARCOURONS TOUTES LES MAISONS DE CETTE AGENCE, PUIS FILTRONS LES ETATS
+        foreach ($agency->_Houses as $house) {
+
+            ###___DERNIER ETAT D'ARRET DE CETTE MAISON
+            $house_last_state = $house->States->last();
+            if ($house_last_state) {
+                ###__DATE DU DERNIER ARRET DES ETATS DE CETTE MAISON
+                $house_last_state_date = date("Y/m/d", strtotime($house_last_state->stats_stoped_day));
+
+                ###__LES FACTURES DE CET DERNIER ETAT
+                $house_last_state_factures = $house_last_state->Factures;
+
+                foreach ($house_last_state_factures as $facture) {
+                    ###___Echéance date
+                    $location_echeance_date = date("Y/m/d", strtotime($facture->Location->previous_echeance_date));
+
+                    $location_payement_date = date("Y/m/d",  strtotime($facture->echeance_date));
+
+                    ####___determinons le jour de la date d'écheance
+                    $day_of_this_date = explode("/", $location_echeance_date)[2];
+                    ###____
+                    ###___on verifie si la date de paiement se trouve entre *la date d'arrêt* de l'etat et *la date d'échéance*
+                    if ($house_last_state_date > $location_payement_date && $location_payement_date <= $location_echeance_date) {
+                        ###___on verifie si le jour de la date d'écheance est le 05 ou le 10
+                        if ($day_of_this_date == 05 || $day_of_this_date == 10) {
+                            if ($inner_call) {
+                                ###___pour un out_call, 
+                                ###____on renvoie les locations en lieu et place des locataires
+                                array_push($locations_that_paid_after_state_stoped_day_of_all_houses, $facture->Location);
+                            }
+
+                            array_push($locators_that_paid_after_state_stoped_day_of_all_houses, $facture->Location->Locataire);
+                        } else {
+                            if ($inner_call) {
+                                ###___pour un out_call, 
+                                ###____on renvoie aussi les locations n'ayant pas payés dans la période
+                                array_push($locations_that_do_not__paid_after_state_stoped_day_of_all_houses, $facture->Location);
+                            }
+                        }
+                    }
+                };
+            }
+        };
+
+        if ($inner_call) {
+            $data["locations_that_paid"] = $locations_that_paid_after_state_stoped_day_of_all_houses;
+            $data["locations_that_do_not_paid"] = $locations_that_do_not__paid_after_state_stoped_day_of_all_houses;
+            return $data;
+        }
     }
 
     #VERIFIONS SI LE USER EST AUTHENTIFIE
@@ -440,7 +634,7 @@ class LocataireController extends Controller
         foreach ($locations as $location) {
             ###__la location
             $location_previous_echeance_date = strtotime(date("Y/m/d", strtotime($location->previous_echeance_date)));
-            
+
             ###__derniere facture de la location
             $last_facture = $location->Factures->last();
             if ($last_facture) {
@@ -502,7 +696,7 @@ class LocataireController extends Controller
             ###__la location
             $location_previous_echeance_date = strtotime(date("Y/m/d", strtotime($location->previous_echeance_date)));
             ###__derniere facture de la location
-            
+
             $last_facture = $location->Factures->last();
             if ($last_facture) {
                 $last_facture_created_date = strtotime(date("Y/m/d", strtotime($last_facture->created_at)));
@@ -534,6 +728,282 @@ class LocataireController extends Controller
         alert()->success("Succès", "Locataire impayés filtré par maison avec succès!");
         return back()->withInput()->with(["filteredLocators", $locataires]);
     }
+
+    #####______TAUX 05 AGENCE
+    function _ShowAgencyTaux05_Simple(Request $request, $agencyId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement 05
+        $recovery05_locations = self::_recovery05ToEcheanceDate($request, $agency->id, true);
+
+        $locations_that_paid = $recovery05_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery05_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+
+        $supervisor = null;
+        $house = null;
+        $action = "agency";
+
+        $locations = $locations_that_paid;
+
+        ###__
+        return view("recovery05_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+    #####______TAUX 05 AGENCE PAR SUPERVISEUR
+    function _ShowAgencyTaux05_By_Supervisor(Request $request, $agencyId, $supervisorId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###__
+        $supervisor = User::where("visible", 1)->find(deCrypId($supervisorId));
+        if (!$supervisor) {
+            alert()->error("Echec", "Ce superviseur n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement 10
+        $recovery05_locations = self::_recovery05ToEcheanceDate($request, $agency->id, true);
+
+        $locations_that_paid = $recovery05_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery05_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+        $locations = [];
+
+        foreach ($locations_that_paid as $location) {
+            if ($location->House->Supervisor->id == $supervisor) {
+                ###__on recupère les locations dont les maisons sont 
+                ###____attachées à ce superviseur
+
+                array_push($locations, $location);
+            }
+        }
+
+        ####____
+        $action="supervisor";
+        $house=null;
+
+        ###__
+        return view("recovery05_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+    #####______TAUX 05 AGENCE PAR HOUSE
+    function _ShowAgencyTaux05_By_House(Request $request, $agencyId, $houseId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###__
+        $house = House::where("visible", 1)->find(deCrypId($houseId));
+        if (!$house) {
+            alert()->error("Echec", "Cette maison n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement 10
+        $recovery05_locations = self::_recovery05ToEcheanceDate($request, $agency->id, true);
+
+        $locations_that_paid = $recovery05_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery05_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+        $locations = [];
+
+        foreach ($locations_that_paid as $location) {
+            if ($location->House->id == $house->id) {
+                ###__on recupère les locations dont les maisons sont 
+                ###____attachées à ce superviseur
+
+                array_push($locations, $location);
+            }
+        }
+
+        ####____
+        $action="house";
+        $supervisor=null;
+
+        ###__
+        return view("recovery05_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+
+
+    #####______TAUX 10 AGENCE
+    function _ShowAgencyTaux10_Simple(Request $request, $agencyId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement 05
+        $recovery10_locations = self::_recovery10ToEcheanceDate($request, $agency->id, true);
+
+        $locations_that_paid = $recovery10_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery10_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+
+        $supervisor = null;
+        $house = null;
+        $action = "agency";
+
+        $locations = $locations_that_paid;
+
+        ###__
+        return view("recovery10_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+    #####______TAUX 10 AGENCE PAR SUPERVISEUR
+    function _ShowAgencyTaux10_By_Supervisor(Request $request, $agencyId, $supervisorId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###__
+        $supervisor = User::where("visible", 1)->find(deCrypId($supervisorId));
+        if (!$supervisor) {
+            alert()->error("Echec", "Ce superviseur n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement 10
+        $recovery10_locations = self::_recovery10ToEcheanceDate($request, $agency->id, true);
+
+        $locations_that_paid = $recovery10_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery10_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+        $locations = [];
+
+        foreach ($locations_that_paid as $location) {
+            if ($location->House->Supervisor->id == $supervisor) {
+                ###__on recupère les locations dont les maisons sont 
+                ###____attachées à ce superviseur
+
+                array_push($locations, $location);
+            }
+        }
+
+        ####____
+        $action="supervisor";
+        $house=null;
+
+        ###__
+        return view("recovery10_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+    #####______TAUX 10 AGENCE PAR HOUSE
+    function _ShowAgencyTaux10_By_House(Request $request, $agencyId, $houseId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###__
+        $house = House::where("visible", 1)->find(deCrypId($houseId));
+        if (!$house) {
+            alert()->error("Echec", "Cette maison n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement 10
+        $recovery10_locations = self::_recovery10ToEcheanceDate($request, $agency->id, true);
+
+        $locations_that_paid = $recovery10_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery10_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+        $locations = [];
+
+        foreach ($locations_that_paid as $location) {
+            if ($location->House->id == $house->id) {
+                ###__on recupère les locations dont les maisons sont 
+                ###____attachées à ce superviseur
+
+                array_push($locations, $location);
+            }
+        }
+
+        ####____
+        $action="house";
+        $supervisor=null;
+
+        ###__
+        return view("recovery10_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     function AgencyLocataires(Request $request, $agencyId)
     {
