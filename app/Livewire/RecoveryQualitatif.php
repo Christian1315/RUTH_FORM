@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 
@@ -45,169 +46,72 @@ class RecoveryQualitatif extends Component
     ###___HOUSES
     function refreshThisAgencyHouses()
     {
-        $agency_response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/agency/" . $this->agency['id'] . "/retrieve")->json();
-        if (!$agency_response) {
-            return redirect("/")->with("error", "Une erreure est survenue! Veuillez réessayez plus tard!");
-        } else {
-            if (!$agency_response["status"]) {
-                $this->houses = [];
-            } else {
-                ###__TRIONS CEUX QUI SE TROUVENT DANS L'AGENCE ACTUELLE
-                ##__on recupere les maisons qui appartiennent aux propriétaires
-                ##__ se trouvant dans cette agence
-                $agency_houses = [];
-                foreach ($agency_response["data"]["__proprietors"] as $proprio) {
-                    if ($proprio["agency"]["id"] == $this->agency['id']) { ##__si le proprio appartient à l'agence
-                        $proprio_houses = $proprio["houses"];
-                        foreach ($proprio_houses as $house) {
-                            array_push($agency_houses, $house);
-                        }
-                    }
-                }
-                $this->houses = $agency_houses;
-            }
-        }
+        $this->houses = $this->agency->_Houses;
     }
 
     // REFRESH SUPERVISOR
     function refreshSupervisors()
     {
-        $supervisors = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/agency/" . $this->agency['id'] . "/supervisors")->json();
-        if (!$supervisors["status"]) {
-            $this->supervisors = 0;
-        } else {
-            $this->supervisors = $supervisors["data"];
-        }
-    }
+        $users = User::with(["account_agents"])->get();
+        $supervisors = [];
 
+        foreach ($users as $user) {
+            $user_roles = $user->roles; ##recuperation des roles de ce user
 
-    function displayTauxOptions()
-    {
-        if ($this->display_taux_options) {
-            $this->display_taux_options = false;
-        } else {
-            $this->display_taux_options = true;
-        }
-
-        $this->showTaux = false;
-        $this->generate_taux_by_house = false;
-    }
-
-    function showGenerateTaux()
-    {
-        set_time_limit(0);
-
-        $response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/locataire/" . $this->agency['id'] . "/imprime_taux_qualitatif_agency")->json();
-
-        if (!$response) {
-            $this->generalError = "Une erreure est survenue! Veuillez bien réessayer plus tard";
-        } else {
-            if (!$response["status"]) {
-                $this->generalError = $response["erros"];
-            } else {
-                $this->showTaux = true;
-                $this->taux_link = $response["data"]["taux_html_url"];
-            }
-        }
-        $this->generate_taux_by_supervisor = false;
-        $this->generate_taux_by_house = false;
-    }
-
-    function GenerateTauxBySupervisor()
-    {
-        set_time_limit(0);
-
-        if (!$this->supervisor) {
-            $this->generalError = "Veuillez choisir un superviseur";
-        } else {
-            $data = [
-                "start_date" => $this->start_date,
-                "end_date" => $this->end_date,
-            ];
-
-            $response = Http::withHeaders($this->headers)->post($this->BASE_URL . "immo/locataire/" . $this->agency['id'] . "/$this->supervisor/imprime_taux_qualitatif_supervisor", $data)->json();
-
-            if (!$response) {
-                $this->generalError = "Une erreure est survenue! Veuillez bien réessayer plus tard";
-            } else {
-                if (!$response["status"]) {
-                    $this->generalError = $response["erros"];
-                } else {
-                    $this->showTaux = true;
-                    $this->taux_link = $response["data"]["taux_html_url"];
+            foreach ($user_roles as $user_role) {
+                if ($user_role->id == env("SUPERVISOR_ROLE_ID")) {
+                    array_push($supervisors, $user);
                 }
             }
         }
-
-        $this->generate_taux_by_supervisor = false;
-        $this->generate_taux_by_house = false;
+        $this->supervisors = array_unique($supervisors);
     }
 
-    function GenerateTauxByHouse()
+    function refreshLocators()
     {
-        set_time_limit(0);
 
-        if (!$this->house) {
-            $this->generalError = "Veuillez choisir la maison";
-        } else {
-            $data = [
-                "start_date" => $this->start_date,
-                "end_date" => $this->end_date,
-            ];
-            $response = Http::withHeaders($this->headers)->post($this->BASE_URL . "immo/locataire/" . $this->agency['id'] . "/$this->house/imprime_taux_qualitatif_house",$data)->json();
+        #####____locataires ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locators_that_paid_after_state_stoped_day_of_all_houses = [];
 
-            if (!$response) {
-                $this->generalError = "Une erreure est survenue! Veuillez bien réessayer plus tard";
-            } else {
-                if (!$response["status"]) {
-                    $this->generalError = $response["erros"];
-                } else {
-                    $this->showTaux = true;
-                    $this->taux_link = $response["data"]["taux_html_url"];
-                }
+        #####____location ayant payés après l'arrêt d'etat du dernier state dans toutes les maisons
+        $locations_that_paid_after_state_stoped_day_of_all_houses = [];
+        $locations_that_do_not__paid_after_state_stoped_day_of_all_houses = [];
+
+        ###____PARCOURONS TOUTES LES MAISONS DE CETTE AGENCE, PUIS FILTRONS LES ETATS
+        foreach ($this->agency->_Houses as $house) {
+
+            ###___DERNIER ETAT D'ARRET DE CETTE MAISON
+            $house_last_state = $house->States->last();
+            if ($house_last_state) {
+                ###__DATE DU DERNIER ARRET DES ETATS DE CETTE MAISON
+                $house_last_state_date = date("Y/m/d", strtotime($house_last_state->stats_stoped_day));
+
+                ###__LES FACTURES DE CET DERNIER ETAT
+                $house_last_state_factures = $house_last_state->Factures;
+
+                foreach ($house_last_state_factures as $facture) {
+                    ###___Echéance date
+                    $location_echeance_date = date("Y/m/d", strtotime($facture->Location->previous_echeance_date));
+
+                    $location_payement_date = date("Y/m/d",  strtotime($facture->echeance_date));
+
+                    ####___determinons le jour de la date d'écheance
+                    $day_of_this_date = explode("/", $location_echeance_date)[2];
+                    ###____
+                    ###___on verifie si la date de paiement se trouve entre *la date d'arrêt* de l'etat et *la date d'échéance*
+                    if ($house_last_state_date > $location_payement_date && $location_payement_date <= $location_echeance_date) {
+                        ###___on verifie si le jour de la date d'écheance est le 05 ou le 10
+                        if ($day_of_this_date == 05 || $day_of_this_date == 10) {
+                            $facture->Location->Locataire["locator_location"] = $facture->Location;
+                            array_push($locators_that_paid_after_state_stoped_day_of_all_houses, $facture->Location->Locataire);
+                        }
+                    }
+                };
             }
-        }
+        };
 
-        $this->generate_taux_by_supervisor = false;
-        $this->generate_taux_by_house = false;
-    }
-
-    function ShowGenerateTauxBySupervisorForm()
-    {
-        if ($this->generate_taux_by_supervisor) {
-            $this->generate_taux_by_supervisor = false;
-        } else {
-            $this->generate_taux_by_supervisor = true;
-        }
-        $this->showTaux = false;
-        $this->generate_taux_by_house = false;
-    }
-
-    function ShowGenerateTauxByHouseForm()
-    {
-        if ($this->generate_taux_by_house) {
-            $this->generate_taux_by_house = false;
-        } else {
-            $this->generate_taux_by_house = true;
-        }
-        $this->showTaux = false;
-        $this->generate_taux_by_supervisor = false;
-    }
-
-
-    function refreshLocators($agencyId)
-    {
-        $response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/locataire/$agencyId/recovery_qualitatif")->json();
-
-        if (!$response) {
-            $this->generalError = "Désolé! Une erreure est survenue! Veuillez réeesayer plus tard";
-        } else {
-            if (!$response["status"]) {
-                $this->locators = [];
-            } else {
-                $this->locators = $response["data"];
-            }
-        }
+        #####____
+        $this->locators = $locators_that_paid_after_state_stoped_day_of_all_houses;
     }
 
     function mount($agency)
@@ -216,15 +120,7 @@ class RecoveryQualitatif extends Component
 
         $this->agency = $agency;
 
-        $this->BASE_URL = env("BASE_URL");
-        $this->token = session()->get("token");
-        $this->userId = session()->get("userId");
-
-        $this->headers = [
-            "Authorization" => "Bearer " . $this->token,
-        ];
-
-        $this->refreshLocators($this->agency["id"]);
+        $this->refreshLocators();
         $this->refreshSupervisors();
         $this->refreshThisAgencyHouses();
     }

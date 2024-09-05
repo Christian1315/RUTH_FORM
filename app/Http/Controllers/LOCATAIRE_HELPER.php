@@ -973,7 +973,7 @@ class LOCATAIRE_HELPER extends BASE_HELPER
     {
         $formData = $request->all();
 
-        ###____validation des dates
+        ###____Validation des dates
         $validator = Validator::make(
             $formData,
             [

@@ -185,9 +185,13 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/{agency}/recovery_10_to_echeance_date', "AgencyRecovery10")->name("recovery_10_to_echeance_date");
     Route::get('/{agency}/recovery_qualitatif', "AgencyRecoveryQualitatif")->name("recovery_10_to_echeance_date");
     Route::get('/{agency}/performance', "AgencyPerformance")->name("performance");
+
     Route::get('/{agency}/recovery_quelconque_date', "RecoveryAtAnyDate")->name("recovery_quelconque_date");
+    Route::post('/{agency}/recovery_quelconque_date_filtrage', "FiltreByDateInAgency")->name("recovery_quelconque_date.FiltreByDateInAgency");
 
     Route::get('/{agency}/filtrage', "Filtrage")->name("filtrage");
+
+
 
 
 
@@ -395,15 +399,10 @@ Route::get("{agencyId}/show_taux_10_agency_simple", [LocataireController::class,
 Route::get("{agencyId}/{supervisor}/show_taux_10_agency_by_supervisor", [LocataireController::class, "_ShowAgencyTaux10_By_Supervisor"])->name("taux._ShowAgencyTaux10_By_Supervisor");
 Route::get("{agencyId}/{house}/show_taux_10_agency_by_house", [LocataireController::class, "_ShowAgencyTaux10_By_House"])->name("taux._ShowAgencyTaux10_By_House");
 
-
-Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_05_agency", [LocataireController::class, "ShowAgencyTaux05"])->name("taux.ShowAgencyTaux05");
-Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_10_agency", [LocataireController::class, "ShowAgencyTaux10"]);
-Route::get("{agencyId}/{action}/{supervisor}/{house}/{start_date}/{end_date}/show_taux_qualitatif_agency", [LocataireController::class, "ShowAgencyTauxQualitatif"]);
-
-
-
-
-
+##__qualitatif
+Route::get("{agencyId}/show_taux_qualitatif_simple", [LocataireController::class, "_ShowAgencyTauxQualitatif_Simple"])->name("taux._ShowAgencyTauxQualitatif_Simple");
+Route::get("{agencyId}/{supervisor}/show_taux_qualitatif_by_supervisor", [LocataireController::class, "_ShowAgencyTauxQualitatif_By_Supervisor"])->name("taux._ShowAgencyTauxQualitatif_By_Supervisor");
+Route::get("{agencyId}/{house}/show_taux_qualitatif_by_house", [LocataireController::class, "_ShowAgencyTauxQualitatif_By_House"])->name("taux._ShowAgencyTauxQualitatif_By_House");
 
 
 

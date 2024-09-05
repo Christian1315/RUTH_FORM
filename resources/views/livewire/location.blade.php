@@ -102,7 +102,7 @@
                                 </div><br>
                                 <div class="mb-3">
                                     <label for="" class="d-block">Maison</label>
-                                    <select class="form-select form-control" name="house" aria-label="Default select example">
+                                    <select class="form-select form-control" onchange="houseSelect({{old('room')}})" id="houseSelection" name="house" aria-label="Default select example">
                                         @foreach($houses as $house)
                                         <option value="{{$house['id']}}" @if(old('house')==$house['id']) selected @endif>{{$house['name']}}</option>
                                         @endforeach
@@ -113,12 +113,14 @@
                                 </div>
                                 <br>
 
-                                <div class="mb-3">
+                                <div class="spinner-border" id="loading" role="status" hidden>
+                                    <span class="visually-hidden text-red">Loading...</span>
+                                </div>
+
+                                <div class="mb-3" id="roomsShow" hidden>
                                     <label class="d-block" for="">Chambre</label>
-                                    <select class="form-select form-control" name="room" aria-label="Default select example">
-                                        @foreach($rooms as $room)
-                                        <option value="{{$room['id']}}" @if(old('room')==$room['id']) selected @endif>{{$room['number']}}</option>
-                                        @endforeach
+                                    <select class="form-select form-control" name="room" id="rooms" aria-label="Default select example">
+
                                     </select>
                                     @error("room")
                                     <span class="text-red">{{$message}}</span>
@@ -417,7 +419,7 @@
                                                 <div class="mb-3">
                                                     <label for="" class="d-block">Date du prorata</label>
                                                     <input value="{{$location->Locataire->prorata_date}}" name="prorata_date" type="date" class="form-control" hidden>
-                                                    <input value="{{$location->Locataire->prorata_date}}" disabled  type="date" class="form-control">
+                                                    <input value="{{$location->Locataire->prorata_date}}" disabled type="date" class="form-control">
                                                 </div>
                                                 @endif
                                                 <div class="mb-3">
@@ -485,12 +487,12 @@
                                         <div>
                                             <ul class="list-group">
                                                 @foreach($location->Factures as $facture)
-                                                <li class="list-group-item mb-3 "> <strong>Code :</strong> {{$facture->facture_code}}; 
-                                                <strong>Statut :</strong> <span class="@if($facture->status==2) bg-success @elseif($facture->status==3 || $facture->status==4)  bg-danger @else bg-warning @endif">{{$facture->Status->name}} </span> ; 
-                                                <strong>Montant: </strong> {{$facture->amount}}; 
-                                                <strong>Fichier: </strong> <a href="{{$facture->facture}}" class="btn btn-sm btn-light" target="_blank" rel="noopener noreferrer"><i class="bi bi-eye"></i></a>;
-                                                <strong>Date d'écheance: </strong> {{Change_date_to_text($facture->echeance_date)}};
-                                                <strong>Description: </strong> <textarea class="form-control" name="" rows="1" placeholder="{{$facture->comments}}" id=""></textarea> ;
+                                                <li class="list-group-item mb-3 "> <strong>Code :</strong> {{$facture->facture_code}};
+                                                    <strong>Statut :</strong> <span class="@if($facture->status==2) bg-success @elseif($facture->status==3 || $facture->status==4)  bg-danger @else bg-warning @endif">{{$facture->Status->name}} </span> ;
+                                                    <strong>Montant: </strong> {{$facture->amount}};
+                                                    <strong>Fichier: </strong> <a href="{{$facture->facture}}" class="btn btn-sm btn-light" target="_blank" rel="noopener noreferrer"><i class="bi bi-eye"></i></a>;
+                                                    <strong>Date d'écheance: </strong> {{Change_date_to_text($facture->echeance_date)}};
+                                                    <strong>Description: </strong> <textarea class="form-control" name="" rows="1" placeholder="{{$facture->comments}}" id=""></textarea> ;
                                                     <strong>Traitement: </strong><br>
                                                     <form action="{{route('location.UpdateFactureStatus',crypId($facture->status))}}" method="post">
                                                         @csrf
@@ -640,6 +642,33 @@
     </div>
 
     <script type="text/javascript">
+        function houseSelect(old) {
+            var houseSelected = $('#houseSelection').val()
+            console.log(houseSelected)
+
+            $('#loading').removeAttr('hidden');
+
+            axios.get("{{env('API_BASE_URL')}}house/" + houseSelected + "/retrieve").then((response) => {
+                var house_rooms = response.data["rooms"];
+                for (var i = 0; i < house_rooms.length; i++) {
+                    var val = house_rooms[i].id;
+                    var text = house_rooms[i].number;
+
+                    if (old == val)
+                        $('#rooms').append("<option selected value=" + val + ">" + text + "</option>");
+                    else
+                        $('#rooms').append("<option value=" + val + ">" + text + "</option>");
+                }
+
+                $('#roomsShow').removeAttr("hidden");
+                $('#loading').attr("hidden", "hidden");
+
+                console.log(house_rooms)
+            }).catch(() => {
+                console.log("une erreure s'est produite")
+            })
+        }
+
         function discounterClick_fun() {
             var value = $('#discounter')[0].checked
             if (value) {

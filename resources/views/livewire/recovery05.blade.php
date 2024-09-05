@@ -1,5 +1,4 @@
 <div>
-    <!-- <button class="btn btn-sm bg-light text-uppercase" id="generate_taux_btn" onclick="generate_taux_btn_fun()"><i class="bi bi-file-earmark-pdf-fill"></i>Génerer les états des taux</button> -->
     <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
         <input type="checkbox" hidden onclick="generate_taux_btn_fun()" name="discounter" class="btn-check" id="generate_taux_btn" autocomplete="off">
         <label class="btn btn-sm bg-red text-uppercase" for="generate_taux_btn"><i class="bi bi-file-earmark-pdf-fill"></i>Génerer les états des taux</label>

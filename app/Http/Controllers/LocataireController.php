@@ -786,7 +786,7 @@ class LocataireController extends Controller
         $locations = [];
 
         foreach ($locations_that_paid as $location) {
-            if ($location->House->Supervisor->id == $supervisor) {
+            if ($location->House->Supervisor->id == $supervisor->id) {
                 ###__on recupère les locations dont les maisons sont 
                 ###____attachées à ce superviseur
 
@@ -795,8 +795,8 @@ class LocataireController extends Controller
         }
 
         ####____
-        $action="supervisor";
-        $house=null;
+        $action = "supervisor";
+        $house = null;
 
         ###__
         return view("recovery05_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
@@ -839,8 +839,8 @@ class LocataireController extends Controller
         }
 
         ####____
-        $action="house";
-        $supervisor=null;
+        $action = "house";
+        $supervisor = null;
 
         ###__
         return view("recovery05_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
@@ -905,7 +905,7 @@ class LocataireController extends Controller
         $locations = [];
 
         foreach ($locations_that_paid as $location) {
-            if ($location->House->Supervisor->id == $supervisor) {
+            if ($location->House->Supervisor->id == $supervisor->id) {
                 ###__on recupère les locations dont les maisons sont 
                 ###____attachées à ce superviseur
 
@@ -914,8 +914,8 @@ class LocataireController extends Controller
         }
 
         ####____
-        $action="supervisor";
-        $house=null;
+        $action = "supervisor";
+        $house = null;
 
         ###__
         return view("recovery10_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
@@ -958,11 +958,130 @@ class LocataireController extends Controller
         }
 
         ####____
-        $action="house";
-        $supervisor=null;
+        $action = "house";
+        $supervisor = null;
 
         ###__
         return view("recovery10_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+
+    #####______TAUX Qualitatif AGENCE
+    function _ShowAgencyTauxQualitatif_Simple(Request $request, $agencyId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement qualitatif
+        $recovery10_locations = self::_recoveryQualitatif($request, $agency->id, true);
+
+        $locations_that_paid = $recovery10_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery10_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+
+        $supervisor = null;
+        $house = null;
+        $action = "agency";
+
+        $locations = $locations_that_paid;
+
+        ###__
+        return view("recovery_qualitatif_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+    #####______TAUX Qualitatif AGENCE PAR SUPERVISEUR
+    function _ShowAgencyTauxQualitatif_By_Supervisor(Request $request, $agencyId,$supervisorId)
+    {
+        $formData = $request->all();
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###__
+        $supervisor = User::where("visible", 1)->find(deCrypId($supervisorId));
+        if (!$supervisor) {
+            alert()->error("Echec", "Ce superviseur n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement qualitatif
+        $recovery10_locations = self::_recoveryQualitatif($request, $agency->id, true);
+
+        $locations_that_paid = $recovery10_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery10_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+        $locations = [];
+
+        foreach ($locations_that_paid as $location) {
+            if ($location->House->Supervisor->id == $supervisor->id) {
+                ###__on recupère les locations dont les maisons sont 
+                ###____attachées à ce superviseur
+
+                array_push($locations, $location);
+            }
+        }
+
+        ####____
+        $action = "supervisor";
+        $house = null;
+
+        ###__
+        return view("recovery_qualitatif_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
+    }
+
+    #####______TAUX Qualitatif AGENCE PAR HOUSE
+    function _ShowAgencyTauxQualitatif_By_House(Request $request, $agencyId, $houseId)
+    {
+        ###__
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas");
+            return back()->withInput();
+        }
+
+        ###__
+        $house = House::where("visible", 1)->find(deCrypId($houseId));
+        if (!$house) {
+            alert()->error("Echec", "Cette maison n'existe pas");
+            return back()->withInput();
+        }
+
+        ###____ça revient aux locataires se trouvant dans le recouvrement Qualitatif
+        $recovery10_locations = self::_recoveryQualitatif($request, $agency->id, true);
+
+        $locations_that_paid = $recovery10_locations["locations_that_paid"];
+        $locations_that_do_not_paid = $recovery10_locations["locations_that_do_not_paid"];
+        $total_of_both_of_them = count($locations_that_paid) + count($locations_that_do_not_paid);
+
+        ###___
+        $locations = [];
+
+        foreach ($locations_that_paid as $location) {
+            if ($location->House->id == $house->id) {
+                ###__on recupère les locations dont les maisons sont 
+                ###____attachées à ce superviseur
+
+                array_push($locations, $location);
+            }
+        }
+
+        ####____
+        $action = "house";
+        $supervisor = null;
+
+        ###__
+        return view("recovery_qualitatif_locators", compact(["locations", "action", "agency", "supervisor", "house", "locations_that_do_not_paid", "total_of_both_of_them"]));
     }
 
 

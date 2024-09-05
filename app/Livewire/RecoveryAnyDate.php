@@ -36,14 +36,7 @@ class RecoveryAnyDate extends Component
         set_time_limit(0);
 
         $this->agency = $agency;
-        $this->BASE_URL = env("BASE_URL");
-        $this->token = session()->get("token");
-        $this->userId = session()->get("userId");
-
-        $this->hearders = [
-            "Authorization" => "Bearer " . $this->token,
-        ];
-
+       
         $this->locators = [];
     }
 

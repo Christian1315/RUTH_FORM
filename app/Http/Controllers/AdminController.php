@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agency;
+use App\Models\Payement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class AdminController extends Controller
@@ -263,6 +265,81 @@ class AdminController extends Controller
         return view("admin.recovery10", compact("agency"));
     }
 
+    function AgencyRecoveryQualitatif(Request $request, $agencyId)
+    {
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
+        ####____
+
+        return view("admin.recovery_qualitatif", compact("agency"));
+    }
+
+    function AgencyPerformance(Request $request, $agencyId)
+    {
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
+        ####____
+
+        return view("admin.performance", compact("agency"));
+    }
+
+    function RecoveryAtAnyDate(Request $request, $agencyId)
+    {
+        $agency = Agency::where("visible", 1)->find(deCrypId($agencyId));
+        if (!$agency) {
+            alert()->error("Echec", "Cette agence n'existe pas!");
+        };
+
+        ####____
+        return view("admin.recovery_at_any_date", compact("agency"));
+    }
+
+    function FiltreByDateInAgency(Request $request, $agencyId)
+    {
+        $user = request()->user();
+        $formData = $request->all();
+
+        ###__VALIDATION
+        Validator::make(
+            $formData,
+            [
+                "date" => ["required", "date"],
+            ],
+            [
+                "date.required" => "Veuillez préciser la date",
+                "date.date" => "Le champ doit être de format date",
+            ]
+        )->validate();
+
+        $payements = Payement::all();
+
+        $locators = [];
+
+        ###___RECUPERATION DES PAYEMENTS LIES A CETTE LOCATION
+        $agency_paiements = [];
+        foreach ($payements as $payement) {
+            if ($payement->Location->agency == deCrypId($agencyId)) {
+                array_push($agency_paiements, $payement);
+            }
+        }
+
+        ##__
+        $date = date("d-m-Y", strtotime($formData["date"]));
+        foreach ($agency_paiements as $agency_paiement) {
+            $payement_date = date("d-m-Y", strtotime($agency_paiement->created_at));
+            if (strtotime($payement_date) == strtotime($date)) {
+                array_push($locators, $agency_paiement->Location->Locataire);
+            }
+        }
+
+        ###___
+        alert()->success("Succès","Filtre éffectué avec succès!");
+        return back()->withInput()->with(["any_date"=>$date,"locators"=>$locators]);
+    }
 
 
 
@@ -301,63 +378,7 @@ class AdminController extends Controller
     {
         return view("admin.statistiques");
     }
-
-    
    
-    function AgencyRecoveryQualitatif(Request $request, $agencyId)
-    {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
-        ####____
-
-        return view("admin.recovery_qualitatif", compact("agency"));
-    }
-
-    function AgencyPerformance(Request $request, $agencyId)
-    {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
-        ####____
-
-        return view("admin.performance", compact("agency"));
-    }
-
-    function RecoveryAtAnyDate(Request $request, $agencyId)
-    {
-        $id = Crypt::decrypt($agencyId);
-
-        ###___
-        $response = self::getAgency($id);
-        if (!$response) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        if (!$response["status"]) {
-            return redirect()->back()->with("error", $response["erros"]);
-        }
-        $agency = $response["data"];
-        ####____
-
-        return view("admin.recovery_at_any_date", compact("agency"));
-    }
-
     function Rights(Request $request)
     {
         return view("admin.rights");

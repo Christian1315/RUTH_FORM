@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 
@@ -43,113 +44,25 @@ class Performance extends Component
     // REFRESH SUPERVISOR
     function refreshSupervisors()
     {
-        $supervisors = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/agency/" . $this->agency['id'] . "/supervisors")->json();
-        if (!$supervisors["status"]) {
-            $this->supervisors = 0;
-        } else {
-            $this->supervisors = $supervisors["data"];
-        }
-    }
+        $users = User::with(["account_agents"])->get();
+        $supervisors = [];
 
+        foreach ($users as $user) {
+            $user_roles = $user->roles; ##recuperation des roles de ce user
 
-    function displayTauxOptions()
-    {
-        if ($this->display_taux_options) {
-            $this->display_taux_options = false;
-        } else {
-            $this->display_taux_options = true;
-        }
-    }
-
-    function GeneratePerformanceBySupervisor()
-    {
-
-        $supervisor = $this->supervisor;
-        $house = "null";
-
-        $action = "supervisor";
-
-        $data = [
-            "month" => $this->month,
-        ];
-        $response = Http::withHeaders($this->headers)->post($this->BASE_URL . "immo/house/" . $this->agency['id'] . "/$supervisor/$house/$action/performance", $data)->json();
-
-        if (!$response) {
-            $this->generalError = "Une erreure est survenue! Veuillez réessayez plus tard!";
-        } else {
-            if (!$response["status"]) {
-                $this->houses = [];
-            } else {
-                $this->generalSuccess = "Résultat de votre recherche";
-                $this->houses = $response["data"];
+            foreach ($user_roles as $user_role) {
+                if ($user_role->id == env("SUPERVISOR_ROLE_ID")) {
+                    array_push($supervisors, $user);
+                }
             }
         }
-
-        ####____REINITIALISATION DES DATAS
-        $this->all_busy_rooms = [];
-        $this->all_frees_rooms_at_first_month = [];
-        ###_______
-
-        foreach ($this->houses as $house) {
-            array_push($this->all_busy_rooms, $house["busy_rooms"]);
-            array_push($this->all_frees_rooms_at_first_month, $house["busy_rooms_at_first_month"]);
-        };
-
-        $this->generate_taux_by_supervisor = false;
-        $this->generate_taux_by_house = false;
+        $this->supervisors = array_unique($supervisors);
     }
 
-    function GeneratePerformanceByHouse()
+    ###___HOUSES
+    function refreshThisAgencyHouses()
     {
-        set_time_limit(0);
-        $response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/house/" . $this->house . "/retrieve")->json();
-
-        if (!$this->house) {
-            $this->generalError = "Veuillez choisir la maison";
-        } else {
-            if (!$response["status"]) {
-                $this->houses = [];
-            } else {
-                $this->generalSuccess = "Résultat de votre recherche";
-                $this->houses = $response["data"];
-            }
-        }
-
-        ####____REINITIALISATION DES DATAS
-        $this->all_busy_rooms = [];
-        $this->all_frees_rooms_at_first_month = [];
-        ###_______
-
-        ####____
-        $this->all_busy_rooms = $response["data"]["busy_rooms"];
-        $this->all_frees_rooms_at_first_month = $response["data"]["frees_rooms_at_first_month"];
-        ###_______
-
-
-        $this->generate_taux_by_supervisor = false;
-        $this->generate_taux_by_house = false;
-
-        $this->refreshSupervisors();
-    }
-
-    function ShowGeneratePerformanceBySupervisorForm()
-    {
-        if ($this->generate_taux_by_supervisor) {
-            $this->generate_taux_by_supervisor = false;
-        } else {
-            $this->generate_taux_by_supervisor = true;
-        }
-        $this->generate_taux_by_house = false;
-    }
-
-    function ShowGeneratePerformanceByHouseForm()
-    {
-        if ($this->generate_taux_by_house) {
-            $this->generate_taux_by_house = false;
-        } else {
-            $this->generate_taux_by_house = true;
-        }
-        $this->generate_taux_by_supervisor = false;
+        $this->houses = $this->agency->_Houses;
     }
 
     function mount($agency)
@@ -158,37 +71,84 @@ class Performance extends Component
 
         $this->agency = $agency;
 
-        $this->BASE_URL = env("BASE_URL");
-        $this->token = session()->get("token");
-        $this->userId = session()->get("userId");
-
-        $this->headers = [
-            "Authorization" => "Bearer " . $this->token,
-        ];
-
         $this->GenerateAgencyPerformance();
         $this->refreshSupervisors();
+        $this->refreshThisAgencyHouses();
     }
 
     ###___AGENCY PERFORMANCE
     function GenerateAgencyPerformance()
     {
-        $supervisor = "null";
-        $house = "null";
-        $action = "agency";
+        ####___Toutes les maisons de l'agence
+        $new_houses_data = [];
 
-        $data = [];
+        $all_frees_rooms = [];
+        $all_busy_rooms = [];
+        $all_frees_rooms_at_first_month = [];
+        $all_busy_rooms_at_first_month = [];
 
-        $response = Http::withHeaders($this->headers)->post($this->BASE_URL . "immo/house/" . $this->agency['id'] . "/$supervisor/$house/$action/performance", $data)->json();
-        if (!$response) {
-            return redirect("/")->with("error", "Une erreure est survenue! Veuillez réessayez plus tard!");
-        } else {
-            if (!$response["status"]) {
-                $this->houses = [];
-            } else {
-                $this->houses = $response["data"];
+        ####___HOUSES
+        $houses = [];
+        $house = null;
+
+        ####___traitement des houses
+        $houses = $this->agency->_Houses;
+
+        ####____
+        foreach ($houses as $house) {
+            $creation_date = date("Y/m/d", strtotime($house["created_at"]));
+            $creation_time = strtotime($creation_date);
+            $first_month_period = strtotime("+1 month", strtotime($creation_date));
+
+            $frees_rooms = [];
+            $busy_rooms = [];
+            $busy_rooms_at_first_month = [];
+            $frees_rooms_at_first_month = [];
+
+            foreach ($house->Rooms as $room) {
+                $is_this_room_buzy = false; #cette variable determine si cette chambre est occupée ou pas(elle est occupée lorqu'elle se retrouve dans une location de cette maison)
+                ##__parcourons les locations pour voir si cette chambre s'y trouve
+
+                foreach ($house->Locations as $location) {
+                    if ($location->Room->id == $room->id) {
+                        $is_this_room_buzy = true;
+
+                        ###___verifions la période d'entrée de cette chambre en location
+                        ###__pour determiner les chambres vide dans le premier mois
+                        $location_create_date = strtotime(date("Y/m/d", strtotime($location["created_at"])));
+                        ##on verifie si la date de creation de la location est inférieure à la date du *$first_month_period*
+
+                        if ($location_create_date < $first_month_period) {
+
+                            array_push($busy_rooms_at_first_month, $room);
+                            array_push($all_busy_rooms_at_first_month, $room);
+                        } else {
+                            array_push($frees_rooms_at_first_month, $room);
+                            array_push($all_frees_rooms_at_first_month, $room);
+                        }
+                    }
+                }
+
+                ###__
+                if ($is_this_room_buzy) { ##__quand la chambre est occupée
+                    array_push($busy_rooms, $room);
+                    array_push($all_busy_rooms, $room);
+                } else {
+                    array_push($frees_rooms, $room); ##__quand la chambre est libre
+                    array_push($all_frees_rooms, $room);
+                }
             }
+
+            $house["busy_rooms"] = $busy_rooms;
+            $house["frees_rooms"] = $frees_rooms;
+            $house["busy_rooms_at_first_month"] = $busy_rooms_at_first_month;
+            $house["frees_rooms_at_first_month"] = $frees_rooms_at_first_month;
+
+            ####____
+            array_push($new_houses_data, $house);
         }
+
+        #####_______
 
         foreach ($this->houses as $house) {
             array_push($this->all_busy_rooms, $house["busy_rooms"]);
