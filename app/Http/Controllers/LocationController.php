@@ -271,6 +271,9 @@ class LocationController extends Controller
         $type = LocationType::find($formData["type"]);
         $agency = Agency::find($formData["agency"]);
 
+        ##__LES INFOS LIEES AU COMPTERUELECTRIQUE D'UNE LOCATION REVIENNENT AUX INFOS ELECYTRICQUE DE LMA CHAMBRE CHOISIE
+        $formData["discounter"] = $room->electricity ? true : false;
+        $formData["kilowater_price"] = $room->electricity ? $room->electricity_unit_price : 0;
         ###___
 
         if ($request->pre_paid == $request->post_paid) {
@@ -307,7 +310,6 @@ class LocationController extends Controller
             alert()->error("Echec", "Cette agence n'existe pas!");
             return back()->withInput();
         }
-
 
         ####___ TRAITEMENT DE LA CHAMBRE
         if (!$room) {
@@ -349,7 +351,6 @@ class LocationController extends Controller
         ##__
         $formData["loyer"] = $room->total_amount;
 
-        $formData["discounter"] = $request->discounter ? true : false;
         $formData["pre_paid"] = $request->pre_paid ? true : false;
         $formData["post_paid"] = $request->post_paid ? true : false;
         $formData["comments"] = $request->comments ? $request->comments : "---";
@@ -979,7 +980,7 @@ class LocationController extends Controller
 
         // dd($locationsFiltered);
         ####____
-        return view("locators.locator-after-stop-date", compact("locationsFiltered","house"));
+        return view("locators.locator-after-stop-date", compact("locationsFiltered", "house"));
     }
 
     ####___PAIEMENTS LIES A L'ARRET DES ETATS
@@ -1057,7 +1058,7 @@ class LocationController extends Controller
 
         // dd($locationsFiltered);
         ####____
-        return view("locators.locator-before-stop-date", compact("locationsFiltered","house"));
+        return view("locators.locator-before-stop-date", compact("locationsFiltered", "house"));
     }
 
 

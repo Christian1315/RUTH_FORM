@@ -263,25 +263,7 @@
                                         <input type="checkbox" name="post_paid" class="btn-check" id="post_paid" autocomplete="off">
                                         <label class="btn bg-dark text-white" for="post_paid">Post-Payé</label>
                                     </div>
-                                </div><br>
-
-                                <div class="mb-3">
-                                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
-                                        <input type="checkbox" onclick="discounterClick_fun()" name="discounter" class="btn-check" id="discounter" autocomplete="off">
-                                        <label class="btn bg-dark text-white" for="discounter">Décompteur électri ...</label>
-                                    </div>
-                                </div><br>
-
-                                <div class="water shadow-lg roundered p-2" id="show_discounter_info" hidden>
-                                    <div class="form-check">
-                                        <span>Prix du kilowater</span>
-                                        <input value="{{old('kilowater_price')}}" name="kilowater_price" placeholder="Prix du kilowater ....." class="form-control" type="number">
-                                        @error("kilowater_price")
-                                        <span class="text-red">{{$message}}</span>
-                                        @enderror
-                                    </div>
                                 </div>
-
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -665,7 +647,7 @@
 
                 console.log(house_rooms)
             }).catch(() => {
-                console.log("une erreure s'est produite")
+                alert("une erreure s'est produite")
             })
         }
 

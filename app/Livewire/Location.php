@@ -176,48 +176,6 @@ class Location extends Component
 
     public $showPrestations = false;
 
-    function discounterClick()
-    {
-        if ($this->discounter) {
-            $this->show_discounter_info = true;
-        } else {
-            $this->show_discounter_info = false;
-        }
-    }
-
-    public function refreshCurrentLocation($id)
-    {
-        $location = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/location/{$id}/retrieve")->json();
-        if (!$location["status"]) {
-            $this->current_location = [];
-            $this->show_facture_liste = false;
-        } else {
-            $this->current_location = $location["data"];
-        }
-
-        $this->current_locator = $this->current_location["locataire"];
-    }
-
-    public function refreshCurrentFactures($locationId)
-    {
-        $location = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/location/{$locationId}/retrieve")->json();
-
-        if (!$location) {
-            $this->location_factures = [];
-            $this->current_location = [];
-            $this->show_facture_liste = false;
-        } else {
-            if (!$location["status"]) {
-                $this->location_factures = [];
-                $this->current_location = [];
-                $this->show_facture_liste = false;
-            } else {
-                $this->location_factures = $location["data"]["factures"];
-                $this->current_location = $location["data"];
-            }
-        }
-    }
-
     ###___HOUSES
     function refreshThisAgencyHouses()
     {
@@ -283,6 +241,7 @@ class Location extends Component
 
     function mount($agency)
     {
+        dd(in_array(auth()->user()->roles->toArray(), env("MASTER_ROLE_ID")));
         set_time_limit(0);
         $this->current_agency = $agency;
 

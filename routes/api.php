@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\HouseController;
+use App\Http\Controllers\Api\V1\RoomController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +20,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix("house")->group(function () {
             Route::controller(HouseController::class)->group(function () {
                 Route::any('{id}/retrieve', 'RetrieveHouse'); #RECUPERATION D'UNE MAISON
+            });
+        });
+        ##___
+
+        Route::prefix("room")->group(function () {
+            Route::controller(RoomController::class)->group(function () {
+                Route::any('{id}/retrieve', 'RetrieveRoom'); #RECUPERATION D'UNE CHAMBRE
             });
         });
         ##___
