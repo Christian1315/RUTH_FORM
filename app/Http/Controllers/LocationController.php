@@ -26,7 +26,7 @@ class LocationController extends Controller
     #VERIFIONS SI LE USER EST AUTHENTIFIE
     public function __construct()
     {
-        $this->middleware(['auth'])->except(["_ManageCautions"]);
+        $this->middleware(['auth'])->except(["_ManageCautions", "_ShowCautionsForHouseByPeriod"]);
     }
 
     ########==================== ROOM TYPE VALIDATION ===================#####
@@ -422,9 +422,12 @@ class LocationController extends Controller
             return back()->withInput();
         };
 
-        if ($location->owner != $user->id) {
-            alert()->error("Echec", "Cette location ne vous appartient pas!");
-            return back()->withInput();
+
+        if (!auth()->user()->is_master && !auth()->user()->is_admin) {
+            if ($location->owner != $user->id) {
+                alert()->error("Echec", "Cette location ne vous appartient pas!");
+                return back()->withInput();
+            }
         }
 
         ####____TRAITEMENT DU HOUSE

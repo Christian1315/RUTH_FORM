@@ -23,15 +23,15 @@
                     <tbody>
                         @foreach($factures as $facture)
                         <tr class="align-items-center">
-                            <td class="text-center text-red">{{$facture["Location"]["House"]["Supervisor"]["name"]}}</td>
+                            <td class="text-center text-red"><button class="btn btn-sm btn-light"> {{$facture["Location"]["House"]["Supervisor"]["name"]}}</button></td>
                             <td class="text-center">{{$facture["Owner"]["name"]}}</td>
-                            <td class="text-center">{{$facture["Location"]["House"]["name"]}}</td>
+                            <td class="text-center"> <button class="btn btn-sm btn-light">{{$facture["Location"]["House"]["name"]}} </button> </td>
                             <td class="text-center">{{$facture["Location"]["Room"]["number"]}} </td>
-                            <td class="text-center">{{$facture["Location"]["Locataire"]["name"]}} {{$facture["Location"]["Locataire"]["prenom"]}}</td>
-                            <td class="text-center"> <a target="__blank" href="{{$facture['facture']}}" class="btn btn-sm btn-light shadow-sm"><i class="bi bi-eye"></i></a> 
+                            <td class="text-center"><button class="btn btn-sm btn-light">{{$facture["Location"]["Locataire"]["name"]}} {{$facture["Location"]["Locataire"]["prenom"]}} </button> </td>
+                            <td class="text-center"> <a target="__blank" href="{{$facture['facture']}}" class="btn btn-sm btn-light shadow-sm"><i class="bi bi-eye"></i></a>
                             </td>
                             <td class="text-center">{{$facture['amount']}}</td>
-                            <td class="text-center text-red"><b>{{$facture['echeance_date']}} </b> </td>
+                            <td class="text-center text-red"><button class="btn btn-sm btn-light text-red"> <b>{{$facture['echeance_date']}} </b></button> </td>
                             <td class="text-center">
                                 <textarea name="" rows="1" class="form-control" id="" placeholder="{{$facture->comments}}"></textarea>
                             </td>

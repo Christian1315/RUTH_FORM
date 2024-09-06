@@ -113,16 +113,21 @@ class User extends Authenticatable
 
     function account_agents(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, "agent_account_supervisors", "supervisor", "agent_account")->where(["visible"=>1]);
+        return $this->belongsToMany(User::class, "agent_account_supervisors", "supervisor", "agent_account")->where(["visible" => 1]);
     }
 
     function supervisors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, "agent_account_supervisors", "agent_account", "supervisor")->where(["visible"=>1]);
+        return $this->belongsToMany(User::class, "agent_account_supervisors", "agent_account", "supervisor")->where(["visible" => 1]);
     }
 
     function SupervisorHouses(): HasMany
     {
-        return  $this->hasMany(House::class, "supervisor")->with(["Locations"])->where(["visible"=>1]);
+        return  $this->hasMany(House::class, "supervisor")->with(["Locations"])->where(["visible" => 1]);
+    }
+
+    function MyLocations(): HasMany
+    {
+        return  $this->hasMany(Location::class, "owner")->where(["visible" => 1]);
     }
 }

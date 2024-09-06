@@ -164,6 +164,13 @@ class ProprietorController extends Controller
             return redirect()->back()->withInput();
         };
 
+        if (!auth()->user()->is_master && !auth()->user()->is_admin) {
+            if ($proprietor->owner!=$user->id) {
+                alert()->error("Echec", "Ce propriétaire ne vous appartient pas");
+                return redirect()->back()->withInput();
+            };
+        }
+
         if ($request->get("city")) {
             $city = City::find($request->get("city"));
             if (!$city) {

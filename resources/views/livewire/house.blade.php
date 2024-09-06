@@ -1,4 +1,5 @@
 <div>
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
     <!-- AJOUT D'UN TYPE DE CHAMBRE -->
     <div class="text-left">
         <button type="button" class="btn btn btn-sm bg-light shadow roundered" data-bs-toggle="modal" data-bs-target="#room_type">
@@ -6,6 +7,7 @@
         </button>
     </div>
     <br>
+    @endif
     <!-- Modal room type-->
     <div class="modal fade" id="room_type" aria-labelledby="room_type" aria-hidden="true">
         <div class="modal-dialog">
@@ -41,6 +43,7 @@
         </div>
     </div>
 
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
     <div>
         <div class="d-flex header-bar">
             <h2 class="accordion-header">
@@ -50,7 +53,7 @@
             </h2>
         </div>
     </div>
-
+    @endif
     <!-- ADD HOUSE -->
     <div class="modal fade" id="addHouse" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -264,9 +267,8 @@
                                     <button class="btn btn-sm bg-red dropdown-toggle text-uppercase" style="z-index: 0;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-kanban-fill"></i> &nbsp; Gérer
                                     </button>
-                                    @if(auth()->user())
-                                    @if(auth()->user()->is_master || auth()->user()->is_admin || auth()->user()->user_agency)
                                     <ul class="dropdown-menu">
+                                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                                         <li>
                                             <a href="{{route('house.DeleteHouse', crypId($house['id']))}}" data-confirm-delete="true" class="btn btn-sm bg-red"><i class="bi bi-archive-fill"></i> Supprimer</a>
                                         </li>
@@ -274,27 +276,18 @@
                                         <li>
                                             <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal_{{$house['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
                                         </li>
+                                        @endif
+
+                                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                                         <li>
                                             <a target="_blank" href="/house/{{crypId($house['id'])}}/{{crypId($current_agency['id'])}}/stopHouseState" class="btn btn-sm bg-warning text-dark"><i class="bi bi-sign-stop-fill"></i>&nbsp; Arrêter les états</a>
                                         </li>
+                                        @endif
 
                                         <li>
                                             <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#cautionModal_{{$house['id']}}"><i class="bi bi-file-earmark-pdf-fill"></i> Gestion des cautions </button>
                                         </li>
-                                        @else
-                                        <li>
-                                            <button disabled class="btn btn-sm bg-red"><i class="bi bi-archive-fill"></i> &nbsp;Supprimer (bloqué)</button> &nbsp;
-                                        </li>
-                                        <li>
-                                            <a aria-disabled class="btn btn-sm bg-warning text-dark"><i class="bi bi-sign-stop-fill"></i> &nbsp; Arrêter les
-                                                états (bloqué)</a>
-                                        </li>
-                                        <li>
-                                            <button class="btn btn-sm bg-light" wire:click="ShowGenererHouseCautionByPeriod({{$house['id']}})"><i class="bi bi-file-earmark-pdf-fill"></i> Gestion des cautions </button>
-                                        </li>
                                     </ul>
-                                    @endif
-                                    @endif
                                 </div>
                             </td>
                         </tr>

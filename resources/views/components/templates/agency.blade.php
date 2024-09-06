@@ -50,9 +50,9 @@
                     <a class="nav-link text-center bg-light text-dark px-3" href="/logout">
                         <b>SE DECONNECTER </b>
                         &nbsp;
-                        @if(session()->get("user"))
+                        @if(auth())
                         <span class="">
-                            ({{session()->get("user")["username"]}})
+                            ({{auth()->user()->username}})
                         </span>
                         @endif
                     </a>
@@ -213,14 +213,14 @@
                             <li class="nav-item">
                                 <a class="nav-link active" href="/{{crypId($agency['id'])}}/initiation">
                                     <i class="bi bi-cash-coin"></i>
-                                    Valider paiement prop
+                                    Valider paiement
                                 </a>
                             </li>
                             @else
                             <li class="nav-item">
                                 <a class="nav-link text-white" href="/{{crypId($agency['id'])}}/initiation">
                                     <i class="bi bi-cash-coin"></i>
-                                    Valider paiement prop
+                                    Valider paiement
                                 </a>
                             </li>
                             @endif
@@ -249,11 +249,13 @@
                                     <a class="nav-link active text-white dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-wallet-fill"></i> &nbsp; Caisses
                                     </a>
+                                    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                                     <ul class="dropdown-menu dropdown-menu-dark">
                                         <li><a class="dropdown-item active" href="/{{crypId($agency['id'])}}/caisses">Toutes les caisses</a></li>
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/encaisser">Créditer</a></li>
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/decaisser">Décaisser</a></li>
                                     </ul>
+                                    @endif
                                 </div>
                             </li>
                             @else
@@ -265,8 +267,10 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-dark">
                                         <li><a class="dropdown-item active" href="/{{crypId($agency['id'])}}/caisses">Toutes les caisses</a></li>
+                                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/encaisser">Créditer</a></li>
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/decaisser">Décaisser</a></li>
+                                        @endif
                                     </ul>
                                 </div>
                             </li>
@@ -299,13 +303,14 @@
                             @endif
 
                         </ul>
+
+                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                             <span>Paramètres & Statistiques</span>
                             <a class="d-flex align-items-center text-muted" href="#">
                                 <span data-feather="plus-circle"></span>
                             </a>
                         </h6>
-
 
                         <ul class="nav flex-column">
                             @if($active=="statistique")
@@ -369,17 +374,17 @@
                             @endif
                         </ul>
                         @endif
-
+                        @endif
                     </div>
                 </nav>
 
                 <!-- SUR LES MOBILES -->
                 <nav class="col-md-2 bg-dark shadow-lg" id="sidebar_mobile">
-                    <div class="mt-5">
+                <div class="mt-5">
                         @if($active=="stop_state")
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link active" href="/{{crypId($agency['id'])}})/house">
+                                <a class="nav-link active" href="/{{crypId($agency['id'])}}/house">
                                     <i class="bi bi-house-add-fill"></i>
                                     Arrêt des Etats
                                 </a>
@@ -392,7 +397,6 @@
                         @else
 
                         <ul class="nav flex-column">
-
                             @if($active=="dashbord")
                             <li class="nav-item">
                                 <a class="nav-link bg-white text-danger" style="font-weight: bold;font-style:oblique" href="/{{crypId($agency['id'])}}/manage-agency">
@@ -459,7 +463,6 @@
 
                             @if($active=="locator")
                             <li class="nav-item">
-                                <!-- Default dropend button -->
                                 <div class="btn-group dropdown-center">
                                     <a class="nav-link text-white dropdown-toggle active" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-person-fill-gear"></i>
@@ -473,18 +476,19 @@
                                 </div>
                             </li>
                             @else
-                            <!-- Default dropend button -->
-                            <div class="btn-group dropdown-center">
-                                <a class="nav-link text-white dropdown-toggle active" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-fill-gear"></i>
-                                    Locataires
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark">
-                                    <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/locator">Toutes les locataires</a></li>
-                                    <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/paid_locators">Locataires à jour</a></li>
-                                    <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/unpaid_locators">Locataires en impayé</a></li>
-                                </ul>
-                            </div>
+                            <li class="nav-item">
+                                <div class="btn-group dropdown-center">
+                                    <a class="nav-link text-white dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-person-fill-gear"></i>
+                                        Locataires
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-dark">
+                                        <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/locator">Tout les locataires</a></li>
+                                        <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/paid_locators">Locataires à jour</a></li>
+                                        <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/unpaid_locators">Locataires en impayé</a></li>
+                                    </ul>
+                                </div>
+                            </li>
                             @endif
 
                             @if($active=="location")
@@ -519,24 +523,23 @@
                             </li>
                             @endif
 
-                            @if(session()->get("user"))
-                            @if(session()->get("user")["is_master"] || session()->get("user")["is_admin"])
+                            @if(auth())
+                            @if(auth()->user()->is_master || auth()->user()->is_admin)
                             @if($active=="initiation")
                             <li class="nav-item">
                                 <a class="nav-link active" href="/{{crypId($agency['id'])}}/initiation">
                                     <i class="bi bi-cash-coin"></i>
-                                    Valider paiement prop
+                                    Valider paiement
                                 </a>
                             </li>
                             @else
                             <li class="nav-item">
                                 <a class="nav-link text-white" href="/{{crypId($agency['id'])}}/initiation">
                                     <i class="bi bi-cash-coin"></i>
-                                    Valider paiement prop
+                                    Valider paiement
                                 </a>
                             </li>
                             @endif
-
                             @endif
                             @endif
 
@@ -562,11 +565,13 @@
                                     <a class="nav-link active text-white dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-wallet-fill"></i> &nbsp; Caisses
                                     </a>
+                                    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                                     <ul class="dropdown-menu dropdown-menu-dark">
                                         <li><a class="dropdown-item active" href="/{{crypId($agency['id'])}}/caisses">Toutes les caisses</a></li>
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/encaisser">Créditer</a></li>
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/decaisser">Décaisser</a></li>
                                     </ul>
+                                    @endif
                                 </div>
                             </li>
                             @else
@@ -578,13 +583,14 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-dark">
                                         <li><a class="dropdown-item active" href="/{{crypId($agency['id'])}}/caisses">Toutes les caisses</a></li>
+                                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/encaisser">Créditer</a></li>
                                         <li><a class="dropdown-item" href="/{{crypId($agency['id'])}}/decaisser">Décaisser</a></li>
+                                        @endif
                                     </ul>
                                 </div>
                             </li>
                             @endif
-
 
                             @if($active=="electricity")
                             <li class="nav-item">
@@ -613,13 +619,14 @@
                             @endif
 
                         </ul>
+
+                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                             <span>Paramètres & Statistiques</span>
                             <a class="d-flex align-items-center text-muted" href="#">
                                 <span data-feather="plus-circle"></span>
                             </a>
                         </h6>
-
 
                         <ul class="nav flex-column">
                             @if($active=="statistique")
@@ -639,13 +646,13 @@
                             @if($active=="filtrage")
                             <li class="nav-item">
                                 <a class="nav-link active text-white" href="/{{crypId($agency['id'])}}/filtrage">
-                                    <i class="bi bi-filter-circle"></i> &nbsp; Filtrage
+                                    <i class="bi bi-filter-circle"></i> &nbsp; Bilan
                                 </a>
                             </li>
                             @else
                             <li class="nav-item">
                                 <a class="nav-link text-white" href="/{{crypId($agency['id'])}}/filtrage">
-                                    <i class="bi bi-filter-circle"></i> &nbsp;Filtrage
+                                    <i class="bi bi-filter-circle"></i> &nbsp;Bilan
                                 </a>
                             </li>
                             @endif
@@ -683,14 +690,14 @@
                             @endif
                         </ul>
                         @endif
-
+                        @endif
                     </div>
                 </nav>
 
                 <!-- =============== LE BODY DU DASHBORD ========= -->
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-                    <x-alert/>
+                    <x-alert />
 
                     <!-- ALERT -->
 
@@ -949,7 +956,7 @@
                     }
                 },
             })
-            
+
             // .buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>

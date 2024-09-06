@@ -375,6 +375,13 @@ class RoomController extends Controller
             return back()->withInput();
         }
 
+        if (!auth()->user()->is_master && !auth()->user()->is_admin) {
+            if ($room->owner != $user->id) {
+                alert()->error("Echec", "Cette Chambre ne vous appartient pas!");
+                return back()->withInput();
+            }
+        }
+
         ###____TRAITEMENT DU HOUSE
         if ($request->get("house")) {
             $house = House::where(["visible" => 1])->find($request->get("house"));
@@ -411,11 +418,19 @@ class RoomController extends Controller
 
     function DeleteRoom(Request $request, $id)
     {
+        $user = auth()->user();
         $room = Room::where(["visible" => 1])->find(deCrypId($id));
         if (!$room) {
             alert()->error("Echec", "Cette Chambre n'existe pas!");
             return back()->withInput();
         };
+
+        if (!auth()->user()->is_master && !auth()->user()->is_admin) {
+            if ($room->owner != $user->id) {
+                alert()->error("Echec", "Cette Chambre ne vous appartient pas!");
+                return back()->withInput();
+            }
+        }
 
         $room->visible = 0;
         $room->delete_at = now();

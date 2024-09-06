@@ -1,4 +1,5 @@
 <div>
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
     <div class="d-flex header-bar">
         <h2 class="accordion-header">
             <button type="button" class="btn btn-sm bg-dark" data-bs-toggle="modal" data-bs-target="#addLocator">
@@ -6,6 +7,7 @@
             </button>
         </h2>
     </div>
+    @endif
 
     <input type="checkbox" hidden class="btn-check" id="displayLocatorsOptions" onclick="displayLocatorsOptions_fun()">
     <label class="btn btn-light" for="displayLocatorsOptions"><i class="bi bi-file-earmark-pdf-fill"></i>Filtrer les locataires</label>
@@ -14,7 +16,6 @@
         <button class="btn btn-sm bg-light d-block" data-bs-toggle="modal" data-bs-target="#ShowSearchLocatorsBySupervisorForm"><i class="bi bi-people"></i> Par Sperviseur</button>
         <button class="btn btn-sm bg-light d-block" data-bs-toggle="modal" data-bs-target="#ShowSearchLocatorsByHouseForm"><i class="bi bi-house-check-fill"></i> Par Maison</button>
     </div>
-
     <!-- FILTRE BY SUPERVISOR -->
     <div class="modal fade" id="ShowSearchLocatorsBySupervisorForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -239,7 +240,9 @@
                             <th class="text-center">Contrat</th>
                             <th class="text-center">Maisons</th>
                             <th class="text-center">Chambres</th>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <th class="text-center">Actions</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -264,17 +267,12 @@
                                     <i class="bi bi-eye-fill"></i>
                                 </button>
                             </td>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="d-flex">
-                                @if(auth())
-                                @if(auth()->user()->is_master || auth()->user()->is_admin || auth()->user()->user_agency)
                                 <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#updateModal_{{$locator['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
                                 <a href="{{ route('locator.DeleteLocataire', crypId($locator->id)) }}" class="btn btn-sm bg-red" data-confirm-delete="true"><i class="bi bi-archive-fill"></i> &nbsp; Suprimer</a>
-
-                                @else
-                                <button class="btn btn-sm bg-red" disabled><i class="bi bi-archive-fill"></i> &nbsp; Suprimer (bloqué) </button>
-                                @endif
-                                @endif
                             </td>
+                            @endif
                         </tr>
 
                         <!-- ###### MODEL DE MODIFICATION ###### -->

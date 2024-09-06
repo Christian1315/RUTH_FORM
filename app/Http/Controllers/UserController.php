@@ -564,10 +564,10 @@ class UserController extends Controller
         }
 
         ###___VALIDATION DES DATAS
-        
+
         $formData = [
-            "agent_account"=>$request->agent,
-            "supervisor"=>$request->user_id,
+            "agent_account" => $request->agent,
+            "supervisor" => $request->user_id,
         ];
 
         $rules = self::affect_supervisor_rules();

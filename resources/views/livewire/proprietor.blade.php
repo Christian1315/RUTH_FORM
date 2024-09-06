@@ -1,4 +1,5 @@
 <div>
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
     <div>
         <div class="d-flex header-bar">
             <h2 class="accordion-header">
@@ -8,6 +9,7 @@
             </h2>
         </div>
     </div>
+    @endif
 
     <!-- ADD PROPRIETOR -->
     <div class="modal fade" id="staticBackdrop" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -164,7 +166,9 @@
                             <th class="text-center">Contrat</th>
                             <th class="text-center">Adresse</th>
                             <th class="text-center">Maisons</th>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <th class="text-center">Actions</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -184,17 +188,11 @@
                                     <i class="bi bi-eye-fill"></i> &nbsp; Voir
                                 </button>
                             </td>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="text-center d-flex">
                                 <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal_{{$proprietor['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
-                                @if(session()->get("user"))
-                                @if(session()->get("user")["is_master"] || session()->get("user")["is_admin"] || session()->get("user")["user_agency"])
-                                <button class="btn btn-sm bg-red" wire:click="delete({{$proprietor['id']}})"><i class="bi bi-archive-fill"></i> &nbsp; Supprimer</button>
-                                @else
-                                <button disabled class="btn btn-sm bg-red"><i class="bi bi-archive-fill"></i> &nbsp; Supprimer(bloqué)</button>
-                                @endif
-                                @endif
                             </td>
-
+                            @endif
                         </tr>
                         <!-- ###### MODEL DES MAISONS ###### -->
                         <div class="modal fade" id="show_houses_{{$proprietor['id']}}" tabindex="-1" aria-hidden="true">
@@ -232,14 +230,14 @@
                                                         <span>Nom</span>
                                                         <input value="{{old('lastname')?old('lastname'):$proprietor['lastname']}}" name="lastname" placeholder="Lastname" class="form-control">
                                                         @error("lastname")
-                                                            <span class="text-red"> {{ $message }} </span>
+                                                        <span class="text-red"> {{ $message }} </span>
                                                         @enderror
                                                     </div><br>
                                                     <div class="mb-3">
                                                         <span class="">Prénom</span>
                                                         <input value="{{old('firstname')?old('firstname'):$proprietor['firstname']}}" type="text" name="firstname" placeholder="Firstname" class="form-control">
                                                         @error("firstname")
-                                                            <span class="text-red"> {{ $message }} </span>
+                                                        <span class="text-red"> {{ $message }} </span>
                                                         @enderror
                                                     </div><br>
                                                 </div>
@@ -249,14 +247,14 @@
                                                         <span>Téléphone</span>
                                                         <input value="{{old('phone')?old('phone'):$proprietor['phone']}}" type="phone" name="phone" placeholder="Phone" class="form-control">
                                                         @error("firstname")
-                                                            <span class="text-red"> {{ $message }} </span>
+                                                        <span class="text-red"> {{ $message }} </span>
                                                         @enderror
                                                     </div><br>
                                                     <div class="mb-3">
                                                         <span>Adresse mail</span>
                                                         <input value="{{old('email')?old('email'):$proprietor['email']}}" type="text" placeholder="Email..." name="email" class="form-control">
                                                         @error("email")
-                                                            <span class="text-red"> {{ $message }} </span>
+                                                        <span class="text-red"> {{ $message }} </span>
                                                         @enderror
                                                     </div><br>
                                                 </div>
@@ -265,7 +263,7 @@
                                                         <span>Adresse</span>
                                                         <input value="{{old('adresse')?old('adresse'):$proprietor['adresse']}}" type="text" placeholder="Adresse ..." name="adresse" class="form-control">
                                                         @error("adresse")
-                                                            <span class="text-red"> {{ $message }} </span>
+                                                        <span class="text-red"> {{ $message }} </span>
                                                         @enderror
                                                     </div>
                                                 </div>

@@ -18,23 +18,6 @@ class AdminController extends Controller
         $this->middleware(['auth']);
     }
 
-    ###____
-    static function getAgency($id)
-    {
-        $BASE_URL = env("BASE_URL");
-        $token = session()->get("token");
-        $userId = session()->get("userId");
-
-        $headers = [
-            "Authorization" => "Bearer " . $token,
-        ];
-
-        ###___
-        $response = Http::withHeaders($headers)->get($BASE_URL . "immo/agency/$id/retrieve")->json();
-
-        return $response;
-    }
-
     function Admin(Request $request)
     {
         ###___

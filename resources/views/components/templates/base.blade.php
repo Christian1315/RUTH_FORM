@@ -169,7 +169,7 @@
                             </a>
                         </h6>
                         @if(auth()->user())
-                        @if(auth()->user()->is_master || auth()->user()->is_admin)
+                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                         <ul class="nav flex-column mb-2">
 
                             @if($active=="setting")
@@ -350,7 +350,7 @@
                             </a>
                         </h6>
                         @if(auth()->user())
-                        @if(auth()->user()->is_master || auth()->user()->is_admin)
+                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
                         <ul class="nav flex-column mb-2">
 
                             @if($active=="setting")

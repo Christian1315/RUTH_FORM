@@ -1,5 +1,5 @@
 <div>
-
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
     <!-- AJOUT D'UN TYPE DE CHAMBRE -->
     <div class="text-left">
         <button type="button" class="btn btn btn-sm bg-light shadow roundered" data-bs-toggle="modal" data-bs-target="#location_type">
@@ -7,7 +7,6 @@
         </button>
     </div>
     <br>
-
     <!-- Modal room type-->
     <div class="modal fade" id="location_type" aria-labelledby="location_type" aria-hidden="true">
         <div class="modal-dialog">
@@ -81,6 +80,7 @@
         </small>
     </div>
     <br><br>
+    @endif
 
     <!-- ADD LOCATION -->
     <div class="modal fade" id="addLocation" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -102,7 +102,7 @@
                                 </div><br>
                                 <div class="mb-3">
                                     <label for="" class="d-block">Maison</label>
-                                    <select class="form-select form-control" onchange="houseSelect({{old('room')}})" id="houseSelection" name="house" aria-label="Default select example">
+                                    <select class="form-select form-control" onchange="houseSelect()" id="houseSelection" name="house" aria-label="Default select example">
                                         @foreach($houses as $house)
                                         <option value="{{$house['id']}}" @if(old('house')==$house['id']) selected @endif>{{$house['name']}}</option>
                                         @endforeach
@@ -277,7 +277,113 @@
         </div>
     </div>
 
+    @if(IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()) && !IS_USER_HAS_MASTER_ROLE(auth()->user()) && !auth()->user()->is_master && !auth()->user()->is_admin)
+    <div class="d-flex header-bar">
+        <small>
+            <button type="button" class="btn btn-sm bg-red" data-bs-toggle="modal" data-bs-target="#encaisse_for_supervisor">
+                <i class="bi bi-currency-exchange"></i> Encaisser un loyer
+            </button>
+        </small>
+    </div>
+    <!-- ENCAISSEMENT LORSQUE LE USER EST UN SUPERVISEUR -->
+    <div class="modal fade" id="encaisse_for_supervisor" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fs-5" id="exampleModalLabel">Encaissement </h6>
+                </div>
+                <form action="{{route('location._AddPaiement')}}" method="POST" class="shadow-lg p-3 animate__animated animate__bounce p-3" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row p-3">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label>Selectionnez la location concernée </label>
+                                <select name="location" onchange="locationSelection()" id="location_selected" class="form-select form-control" aria-label="Default select example">
+                                    <option value="">** **</option>
+                                    @foreach(auth()->user()->MyLocations as $location)
+                                    <option value="{{$location['id']}}" @if($location->id==old('location') ) selected @endif>
+                                        <strong>Maison: <em class="text-red"> {{$location['House']["name"]}}</em> </strong>;
+                                        <strong>Chambre: <em class="text-red"> {{$location['Room']['number']}} </em> </strong>;
+                                        <strong>Locataire: <em class="text-red"> {{$location['Locataire']['name']}} {{$location['Locataire']['prenom']}}</em> </strong>
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @error('location')
+                                <span class="text-red">{{$message}}</span>
+                                @enderror
+                            </div>
+                            <!-- SPIN -->
+                            <div class="spinner-border" id="loading" role="status" hidden>
+                                <span class="visually-hidden text-red">Loading...</span>
+                            </div>
+                            <!-- SPIN -->
+                            <div class="mb-3">
+                                <label>Type de paiement </label>
+                                <select name="type" class="form-select form-control" aria-label="Default select example">
+                                    @foreach($paiements_types as $type)
+                                    <option value="{{$type['id']}}" name="type">{{$type["name"]}}</option>
+                                    @endforeach
+                                </select>
+                                @error('type')
+                                <span class="text-red">{{$message}}</span>
+                                @enderror
+                            </div>
+
+
+                            <div class="mb-3" id="encaisse_date_info" hidden>
+                                <span>Date ou mois pour lequel vous voulez encaisser pour cette location</span>
+                                <input id="encaisse_date" disabled value="" class="form-control">
+                            </div>
+                            <div id="prorata_infos" hidden>
+                                <div class="">
+                                    <span class="text-primary">Ce locataire est un prorata(veuillez renseigner ses infos)</span>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Nbre de jour du prorata</label>
+                                    <input value="{{old('prorata_days')}}" id="prorata_days" name="prorata_days" placeholder="Nbre de jour du prorata ..." class="form-control">
+                                    @error('prorata_days')
+                                    <span class="text-red">{{$message}}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Montant du prorata</label>
+                                    <input value="{{old('prorata_amount')}}" id="prorata_amount" name="prorata_amount" placeholder="Montant du prorata ..." class="form-control">
+                                    @error('prorata_amount')
+                                    <span class="text-red">{{$message}}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Date du prorata</label>
+                                    <input type="hidden"  name="prorata_date" id="prorata_date" type="date" class="form-control">
+                                    <input disabled id="prorata_date" type="date" class="form-control" hidden>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <span>Uploader la facture ici</span> <br>
+                                <input type="file" required name="facture" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="" class="d-block">Code de facture</label>
+                                <input value="{{old('facture_code')}}" required name="facture_code" placeholder="Code facture ...." class="form-control">
+                                @error('facture_code')
+                                <span class="text-red">{{$message}}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-sm bg-red"><i class="bi bi-check-all"></i> Valider</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+    @endif
+
     <!-- TABLEAU DE LISTE -->
+    @if(!IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
     <div class="row">
         <div class="col-12">
             <h4 class="">Total: <strong class="text-red"> {{$locations_count}} </strong> </h4>
@@ -294,7 +400,9 @@
                             <!-- <th class="text-center">Echéance actuelle</th> -->
                             <th class="text-center">Echeance</th>
                             <th class="text-center">Commentaire</th>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <th class="text-center">Actions</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -312,6 +420,8 @@
                             <td class="text-center">
                                 <textarea name="" rows="1" class="form-control" id="">{{$location["comments"]}}</textarea>
                             </td>
+
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="text-center">
                                 <div class="btn-group dropstart">
                                     <button class="btn bg-red btn-sm dropdown-toggle" style="z-index: 0;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -342,6 +452,7 @@
                                     </ul>
                                 </div>
                             </td>
+                            @endif
                         </tr>
 
                         <!-- ###### MODEL D'ENCAISSEMENT ###### -->
@@ -622,30 +733,58 @@
             </div>
         </div>
     </div>
+    @endif
+
+
 
     <script type="text/javascript">
-        function houseSelect(old) {
-            var houseSelected = $('#houseSelection').val()
-            console.log(houseSelected)
+        $(document).ready(function() {
+            // locationSelection($('#location_selected').val())
+            houseSelect($('#houseSelection').val())
+        })
+
+        function locationSelection(val = null) {
+            var locationSelected = val ? val : $('#location_selected').val()
 
             $('#loading').removeAttr('hidden');
 
+            axios.get("{{env('API_BASE_URL')}}location/" + locationSelected + "/retrieve").then((response) => {
+                var location = response.data
+                var location_locataire = location["locataire"]
+
+                $("#encaisse_date_info").removeAttr("hidden")
+                $("#encaisse_date").val(location.next_loyer_date)
+
+                // alert(location_locataire)
+                if (location_locataire.prorata) {
+                    $("#prorata_infos").removeAttr("hidden")
+                    $("#prorata_date").removeAttr("hidden")
+                    $("#prorata_date").val(location_locataire.prorata_date)
+                }
+            }).catch(() => {
+                alert("une erreure s'est produite")
+            })
+        }
+
+
+        function houseSelect(_val = null) {
+            var houseSelected = _val ? _val : $('#houseSelection').val()
+            $('#rooms').empty();
+
+            $('#loading').removeAttr('hidden');
+            
             axios.get("{{env('API_BASE_URL')}}house/" + houseSelected + "/retrieve").then((response) => {
+                // alert("gogo "+houseSelected)
                 var house_rooms = response.data["rooms"];
                 for (var i = 0; i < house_rooms.length; i++) {
                     var val = house_rooms[i].id;
                     var text = house_rooms[i].number;
-
-                    if (old == val)
-                        $('#rooms').append("<option selected value=" + val + ">" + text + "</option>");
-                    else
-                        $('#rooms').append("<option value=" + val + ">" + text + "</option>");
+                    $('#rooms').append("<option value=" + val + ">" + text + "</option>");
                 }
 
                 $('#roomsShow').removeAttr("hidden");
                 $('#loading').attr("hidden", "hidden");
 
-                console.log(house_rooms)
             }).catch(() => {
                 alert("une erreure s'est produite")
             })

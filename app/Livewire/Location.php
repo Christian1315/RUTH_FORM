@@ -241,7 +241,6 @@ class Location extends Component
 
     function mount($agency)
     {
-        dd(in_array(auth()->user()->roles->toArray(), env("MASTER_ROLE_ID")));
         set_time_limit(0);
         $this->current_agency = $agency;
 

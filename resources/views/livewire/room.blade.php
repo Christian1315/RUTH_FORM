@@ -1,5 +1,5 @@
 <div>
-
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
     <!-- AJOUT D'UN TYPE DE CHAMBRE -->
     <div class="text-left">
         <button type="button" class="btn btn btn-sm bg-light shadow roundered" data-bs-toggle="modal" data-bs-target="#room_type">
@@ -10,6 +10,7 @@
         </button>
     </div>
     <br>
+    @endif
     <!-- Modal room type-->
     <div class="modal fade" id="room_type" aria-labelledby="room_type" aria-hidden="true">
         <div class="modal-dialog">
@@ -65,6 +66,7 @@
     </div>
 
     <!-- FORM HEADER -->
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
     <div class="d-flex header-bar">
         <h2 class="accordion-header">
             <button type="button" class="btn btn-sm bg-dark" data-bs-toggle="modal" data-bs-target="#addRoom">
@@ -72,7 +74,7 @@
             </button>
         </h2>
     </div>
-
+    @endif
     <!-- ADD ROOM -->
     <div class="modal fade" id="addRoom" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -323,7 +325,9 @@
                             <th class="text-center">Loyer Total</th>
                             <th class="text-center">Type de Chambre</th>
                             <th class="text-center">Locataires</th>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <th class="text-center">Actions</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -341,28 +345,23 @@
                                     <i class="bi bi-eye-fill"></i> &nbsp; Voir
                                 </button>
                             </td>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="text-center d-flex">
-                                @if(auth())
-                                @if(auth()->user()->is_master || auth()->user()->is_admin || auth()->user()->user_agency)
                                 <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal_{{$room['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
                                 <a href="{{ route('room.DeleteRoom', crypId($room['id']))}}" class="btn btn-sm bg-red" data-confirm-delete="true"><i class="bi bi-archive-fill"></i>Supprimer</a>
-                                @else
-                                <button disabled class="btn btn-sm bg-red"><i class="bi bi-archive-fill"></i> &nbsp; Suprimer (bloqué)</button>
-                                @endif
-                                @endif
                             </td>
+                            @endif
                         </tr>
 
                         <!-- ###### MODEL DE LOCATAIRE -->
                         <div class="modal fade" id="showLocators_{{$room['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                <?php
-                                        $locataires = [];
-                                        foreach($room->Locations as $location){
-                                            $locataires[] = $location->Locataire;
-                                        }
-                                  ;?>
+                                    <?php
+                                    $locataires = [];
+                                    foreach ($room->Locations as $location) {
+                                        $locataires[] = $location->Locataire;
+                                    }; ?>
 
                                     <div class="modal-header">
                                         <h5 class="text-center">Les Locataires de la chambre : <strong class="text-red"> {{$room["number"]}} </strong> </h5>

@@ -358,9 +358,11 @@ class LocataireController extends Controller
             return back()->withInput();
         };
 
-        if ($locataire->owner != $user->id) {
-            alert()->error("Echec", "Ce locataire ne vous appartient pas!");
-            return back()->withInput();
+        if (!auth()->user()->is_master && !auth()->user()->is_admin) {
+            if ($locataire->owner != $user->id) {
+                alert()->error("Echec", "Ce locataire ne vous appartient pas!");
+                return back()->withInput();
+            }
         }
 
         ####____TRAITEMENT DU TYPE DE CARTE
@@ -406,6 +408,13 @@ class LocataireController extends Controller
             alert()->error("Echec", "Ce locataire n'existe pas!");
             return back()->withInput();
         };
+
+        if (!auth()->user()->is_master && !auth()->user()->is_admin) {
+            if ($locataire->owner != $user->id) {
+                alert()->error("Echec", "Ce locataire ne vous appartient pas!");
+                return back()->withInput();
+            }
+        }
 
         $locataire->visible = 0;
         $locataire->delete_at = now();
