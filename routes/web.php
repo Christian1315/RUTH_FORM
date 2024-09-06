@@ -192,17 +192,6 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/{agency}/filtrage', "Filtrage")->name("filtrage");
 
 
-
-
-
-
-
-
-
-
-
-
-
     ###___GENERALES ROUTES
     Route::get('dashbord', "Admin")->name("dashbord");
     Route::get('agency', "Agencies")->name("agency");

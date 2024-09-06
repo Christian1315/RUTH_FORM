@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="{{asset('fichiers/icon-font.min.css')}}">
         <link rel="stylesheet" href="{{asset('fichiers/animate.min.css')}}" />
 
-       
+
         <title>{{$title}}</title>
 
         <!-- <link rel="canonical" href="https://getbootstrap.com/docs/4.1/examples/dashboard/"> -->
@@ -36,7 +36,7 @@
     <body>
         <nav class="navbar navbar-dark fixed-top bg-red flex-md-nowrap p-0 shadow">
             <a class="navbar-brand col-sm-3 col-md-2 mr-0 justify-content-between" href="#">
-                <button class="navbar-toggler" type="button" id="open-moblie-sidebar">
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSideBar" aria-controls="offcanvasWithBothOptions">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 &nbsp;
@@ -46,11 +46,11 @@
             <input class="form-control form-control-dark w-100 bg-light search--bar" type="text" placeholder="Recherche" aria-label="searh">
             <ul class="navbar-nav px-3">
                 <li class="nav-item text-nowrap text-center">
-                    <a class="nav-link text-center" href="logout">
+                    <a class="btn btn-sm btn-light text-center" href="logout">
                         SE DECONNECTER
                         &nbsp;
                         @if(auth()->user())
-                        <span class="text-white">
+                        <span class="text-red">
                             ({{auth()->user()->username}})
                         </span>
                         @endif
@@ -59,373 +59,147 @@
             </ul>
         </nav>
 
-        
+
         <div class="container-fluid">
             <div class="row">
-                <!-- SUR LES DESKTOP -->
-
-                <nav class="col-md-2 d-none d-md-block bg-dark sidebar shadow-lg">
-                    <div class="sidebar-sticky">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                @if($active=="dashbord")
-                                <a class="nav-link active" href="/dashbord">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Tableau de board <span class="sr-only">(current)</span>
-                                </a>
-                                @else
-                                <a class="nav-link text-white" href="/dashbord">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Tableau de board <span class="sr-only">(current)</span>
-                                </a>
-                                @endif
-                            </li>
-
-                            <li class="nav-item">
-                                @if($active=="agency")
-                                <a class="nav-link active" href="/agency">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Agences <span class="sr-only">(current)</span>
-                                </a>
-                                @else
-                                <a class="nav-link text-white" href="/agency">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Agences <span class="sr-only">(current)</span>
-                                </a>
-                                @endif
-                            </li>
-
-                            <!-- @if($active=="client")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/client">
-                                    <i class="bi bi-people-fill"></i>
-                                    Clients
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="/client">
-                                    <i class="bi bi-people-fill"></i>
-                                    Clients
-                                </a>
-                            </li>
-                            @endif -->
-
-
-                            @if($active=="count")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/count">
-                                    <i class="bi bi-person-fill-add"></i>
-                                    Comptes & Soldes
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/count">
-                                    <i class="bi bi-person-fill-add"></i>
-                                    Comptes & Soldes
-                                </a>
-                            </li>
-                            @endif
-
-
-                            <!-- @if($active=="initiation")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/initiation">
-                                    <i class="bi bi-cash-coin"></i>
-                                    Initiations de paiements
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/initiation">
-                                    <i class="bi bi-cash-coin"></i>
-                                    Initiations de paiements
-                                </a>
-                            </li>
-                            @endif -->
-
-                            <!-- @if($active=="paiement")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/paiement">
-                                    <i class="bi bi-currency-exchange"></i>
-                                    Paiements
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/paiement">
-                                    <i class="bi bi-currency-exchange"></i>
-                                    Paiements
-                                </a>
-                            </li>
-                            @endif -->
-
-                        </ul>
-                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            <span>Paramètres & Statistiques</span>
-                            <a class="d-flex align-items-center text-muted" href="#">
-                                <span data-feather="plus-circle"></span>
-                            </a>
-                        </h6>
-                        @if(auth()->user())
-                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
-                        <ul class="nav flex-column mb-2">
-
-                            @if($active=="setting")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/setting">
-                                    <i class="bi bi-gear-fill"></i>
-                                    Utilisateurs
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/setting">
-                                    <i class="bi bi-gear-fill"></i>
-                                    Utilisateurs
-                                </a>
-                            </li>
-                            @endif
-
-                            @if($active=="supervisor")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/supervisor">
-                                    <i class="bi bi-people-fill"></i>
-                                    Superviseurs
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/supervisor">
-                                    <i class="bi bi-people-fill"></i>
-                                    Superviseurs
-                                </a>
-                            </li>
-                            @endif
-
-                            @if($active=="right")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/right">
-                                    <i class="bi bi-person-wheelchair"></i>
-                                    Les Droits
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/right">
-                                    <i class="bi bi-person-wheelchair"></i>
-                                    Les Droits
-                                </a>
-                            </li>
-                            @endif
-
-                            @if($active=="statistique")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/statistique">
-                                    <i class="bi bi-flag-fill"></i>
-                                    Statistiques
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/statistique">
-                                    <i class="bi bi-flag-fill"></i>
-                                    Statistiques
-                                </a>
-                            </li>
-                            @endif
-
-                        </ul>
-                        @endif
-                        @endif
+                <div class="offcanvas bg-dark offcanvas-start" style="width: 250px!important;" data-bs-scroll="true" tabindex="-1" id="offcanvasSideBar" aria-labelledby="offcanvasWithBothOptionsLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">
+                            EDOU SERVICES
+                        </h5>
+                        <button type="button" class="btn-close text-red btn btn-sm btn-light" data-bs-dismiss="offcanvas" aria-label="Close"><i class="bi bi-x"></i></button>
                     </div>
-                </nav>
+                    <div class="offcanvas-body">
+                        <div class="">
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    @if($active=="dashbord")
+                                    <a class="nav-link active" href="/dashbord">
+                                        <i class="bi bi-house-add-fill"></i>
+                                        Tableau de board <span class="sr-only">(current)</span>
+                                    </a>
+                                    @else
+                                    <a class="nav-link text-white" href="/dashbord">
+                                        <i class="bi bi-house-add-fill"></i>
+                                        Tableau de board <span class="sr-only">(current)</span>
+                                    </a>
+                                    @endif
+                                </li>
 
-                <!-- SUR LES MOBILES -->
-                <nav class="col-md-2 bg-dark shadow-lg" id="sidebar_mobile">
-                    <div class="mt-3">
-                        <ul class="nav flex-column">
-                            <i class="bi bi-x-circle" id="close-moblie-sidebar"></i>
-                            <li class="nav-item">
-                                @if($active=="dashbord")
-                                <a class="nav-link active" href="/dashbord">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Tableau de board <span class="sr-only">(current)</span>
-                                </a>
+                                <li class="nav-item">
+                                    @if($active=="agency")
+                                    <a class="nav-link active" href="/agency">
+                                        <i class="bi bi-house-add-fill"></i>
+                                        Agences <span class="sr-only">(current)</span>
+                                    </a>
+                                    @else
+                                    <a class="nav-link text-white" href="/agency">
+                                        <i class="bi bi-house-add-fill"></i>
+                                        Agences <span class="sr-only">(current)</span>
+                                    </a>
+                                    @endif
+                                </li>
+
+                                @if($active=="count")
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="/count">
+                                        <i class="bi bi-person-fill-add"></i>
+                                        Comptes & Soldes
+                                    </a>
+                                </li>
                                 @else
-                                <a class="nav-link text-white" href="/dashbord">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Tableau de board <span class="sr-only">(current)</span>
-                                </a>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/count">
+                                        <i class="bi bi-person-fill-add"></i>
+                                        Comptes & Soldes
+                                    </a>
+                                </li>
                                 @endif
-                            </li>
 
-                            <li class="nav-item">
-                                @if($active=="agency")
-                                <a class="nav-link active" href="/agency">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Agences <span class="sr-only">(current)</span>
+                            </ul>
+                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                                <span>Paramètres & Statistiques</span>
+                                <a class="d-flex align-items-center text-muted" href="#">
+                                    <span data-feather="plus-circle"></span>
                                 </a>
+                            </h6>
+                            @if(auth()->user())
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
+                            <ul class="nav flex-column mb-2">
+
+                                @if($active=="setting")
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="/setting">
+                                        <i class="bi bi-gear-fill"></i>
+                                        Utilisateurs
+                                    </a>
+                                </li>
                                 @else
-                                <a class="nav-link text-white" href="/agency">
-                                    <i class="bi bi-house-add-fill"></i>
-                                    Agences <span class="sr-only">(current)</span>
-                                </a>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/setting">
+                                        <i class="bi bi-gear-fill"></i>
+                                        Utilisateurs
+                                    </a>
+                                </li>
                                 @endif
-                            </li>
 
+                                @if($active=="supervisor")
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="/supervisor">
+                                        <i class="bi bi-people-fill"></i>
+                                        Superviseurs
+                                    </a>
+                                </li>
+                                @else
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/supervisor">
+                                        <i class="bi bi-people-fill"></i>
+                                        Superviseurs
+                                    </a>
+                                </li>
+                                @endif
 
-                            <!-- @if($active=="client")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/client">
-                                    <i class="bi bi-people-fill"></i>
-                                    Clients
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="/client">
-                                    <i class="bi bi-people-fill"></i>
-                                    Clients
-                                </a>
-                            </li>
-                            @endif -->
+                                @if($active=="right")
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="/right">
+                                        <i class="bi bi-person-wheelchair"></i>
+                                        Les Droits
+                                    </a>
+                                </li>
+                                @else
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/right">
+                                        <i class="bi bi-person-wheelchair"></i>
+                                        Les Droits
+                                    </a>
+                                </li>
+                                @endif
 
-
-                            @if($active=="count")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/count">
-                                    <i class="bi bi-person-fill-add"></i>
-                                    Comptes & Soldes
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/count">
-                                    <i class="bi bi-person-fill-add"></i>
-                                    Comptes & Soldes
-                                </a>
-                            </li>
+                                @if($active=="statistique")
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="/statistique">
+                                        <i class="bi bi-flag-fill"></i>
+                                        Statistiques
+                                    </a>
+                                </li>
+                                @else
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/statistique">
+                                        <i class="bi bi-flag-fill"></i>
+                                        Statistiques
+                                    </a>
+                                </li>
+                                @endif
+                            </ul>
                             @endif
-
-
-                            <!-- @if($active=="initiation")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/initiation">
-                                    <i class="bi bi-cash-coin"></i>
-                                    Initiations de paiements
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/initiation">
-                                    <i class="bi bi-cash-coin"></i>
-                                    Initiations de paiements
-                                </a>
-                            </li>
-                            @endif -->
-
-                            <!-- @if($active=="paiement")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/paiement">
-                                    <i class="bi bi-currency-exchange"></i>
-                                    Paiements
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/paiement">
-                                    <i class="bi bi-currency-exchange"></i>
-                                    Paiements
-                                </a>
-                            </li>
-                            @endif -->
-
-                        </ul>
-                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            <span>Paramètres & Statistiques</span>
-                            <a class="d-flex align-items-center text-muted" href="#">
-                                <span data-feather="plus-circle"></span>
-                            </a>
-                        </h6>
-                        @if(auth()->user())
-                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
-                        <ul class="nav flex-column mb-2">
-
-                            @if($active=="setting")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/setting">
-                                    <i class="bi bi-gear-fill"></i>
-                                    Utilisateurs
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/setting">
-                                    <i class="bi bi-gear-fill"></i>
-                                    Utilisateurs
-                                </a>
-                            </li>
                             @endif
-
-                            @if($active=="supervisor")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/supervisor">
-                                    <i class="bi bi-people-fill"></i>
-                                    Superviseurs
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/supervisor">
-                                    <i class="bi bi-people-fill"></i>
-                                    Superviseurs
-                                </a>
-                            </li>
-                            @endif
-
-                            @if($active=="right")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/right">
-                                    <i class="bi bi-person-wheelchair"></i>
-                                    Les Droits
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/right">
-                                    <i class="bi bi-person-wheelchair"></i>
-                                    Les Droits
-                                </a>
-                            </li>
-                            @endif
-
-                            @if($active=="statistique")
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/statistique">
-                                    <i class="bi bi-flag-fill"></i>
-                                    Statistiques
-                                </a>
-                            </li>
-                            @else
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="/statistique">
-                                    <i class="bi bi-flag-fill"></i>
-                                    Statistiques
-                                </a>
-                            </li>
-                            @endif
-
-                        </ul>
-                        @endif
-                        @endif
+                        </div>
                     </div>
-                </nav>
+                </div>
 
                 <!-- =============== LE BODY DU DASHBORD ========= -->
 
-                <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4">
                     <!-- MESSAGE FLASH -->
                     <x-alert />
 
@@ -461,25 +235,19 @@
             $('.select2').select2();
         });
 
+
         $(function() {
             $("#myTable").DataTable({
                 "responsive": true,
-                "lengthChange": false,
+                "lengthChange": true,
+
                 "autoWidth": true,
                 "buttons": ["excel", "pdf", "print"],
                 "order": [
                     [0, 'desc']
                 ],
                 "pageLength": 10,
-                // "columnDefs": [{
-                //         "targets": 2,
-                //         "orderable": false
-                //     },
-                //     {
-                //         "targets": 0,
-                //         "orderable": false
-                //     }
-                // ],
+
                 language: {
                     "emptyTable": "Aucune donnée disponible dans le tableau",
                     "lengthMenu": "Afficher _MENU_ éléments",
@@ -681,17 +449,10 @@
                         }
                     }
                 },
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-            $('#example2').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": true,
             });
         });
+
+        $(".table-responsive-list").prepend("<div class = 'btn-group' role = 'group' aria-label = 'First group' > <button type='button' " +onclick="printBtn()"  +" class='btn btn-secondary'> Excel </button>")
     </script>
 
     </html>

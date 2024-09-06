@@ -1,5 +1,5 @@
 <div>
-
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
     <button class="btn btn-sm btn-light text-uppercase" data-bs-toggle="modal" data-bs-target="#generate_electricity_facture"><i class="bi bi-file-earmark-pdf-fill"> </i> Génerer une facture d'électricité </button>
     <br>
 
@@ -80,7 +80,7 @@
             </div>
         </div>
     </div>
-
+    @endif
     <br>
     <div class="row">
         <div class="col-12">
@@ -104,7 +104,9 @@
                             <th class="text-center">Nbr arrièrées </th>
                             <th class="text-center">Arriérés </th>
                             <th class="text-center">Montant dû</th>
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <th class="text-center">Payer</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -123,12 +125,15 @@
                             <td class="text-center text-red"> {{$location["nbr_un_paid_facture_amount"]?$location["nbr_un_paid_facture_amount"]:0}}</td>
                             <td class="text-center"> <strong class="text-red shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["un_paid_facture_amount"]?$location["un_paid_facture_amount"]:0}} fcfa </strong> </td>
                             <td class="text-center"> <strong class="text-success shadow btn btn-sm"> <i class="bi bi-currency-exchange"></i> {{$location["rest_facture_amount"]?$location["rest_facture_amount"]:0}} fcfa </strong> </td>
+                            
+                            @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="text-center d-flex">
                                 <button data-bs-toggle="modal" data-bs-target="#ShowLocationFactures_{{$location['id']}}" class="btn btn-sm bg-red" type="button">
                                     <i class="bi bi-currency-exchange"></i>&nbsp; Payer
                                 </button>
                                 <button class="btn btn-sm btn-light text-uppercase" data-bs-toggle="modal" data-bs-target="#state_impression_{{$location['id']}}"><i class="bi bi-file-earmark-pdf-fill"> </i> Imprimer</button>
                             </td>
+                            @endif
                         </tr>
 
                         <!-- ###### FACTURES D4ELECTRICITE -->

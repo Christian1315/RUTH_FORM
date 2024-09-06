@@ -1,4 +1,5 @@
 <div>
+   
     @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
     <!-- AJOUT D'UN TYPE DE CHAMBRE -->
     <div class="text-left">
@@ -113,9 +114,11 @@
                                 </div>
                                 <br>
 
-                                <div class="spinner-border" id="loading" role="status" hidden>
+                                <!-- SPIN -->
+                                <div class="spinner-border" id="loading" role="status">
                                     <span class="visually-hidden text-red">Loading...</span>
                                 </div>
+                                <!-- SPIN -->
 
                                 <div class="mb-3" id="roomsShow" hidden>
                                     <label class="d-block" for="">Chambre</label>
@@ -285,6 +288,7 @@
             </button>
         </small>
     </div>
+
     <!-- ENCAISSEMENT LORSQUE LE USER EST UN SUPERVISEUR -->
     <div class="modal fade" id="encaisse_for_supervisor" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -354,7 +358,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="" class="d-block">Date du prorata</label>
-                                    <input type="hidden"  name="prorata_date" id="prorata_date" type="date" class="form-control">
+                                    <input type="hidden" name="prorata_date" id="prorata_date" type="date" class="form-control">
                                     <input disabled id="prorata_date" type="date" class="form-control" hidden>
                                 </div>
                             </div>
@@ -772,7 +776,7 @@
             $('#rooms').empty();
 
             $('#loading').removeAttr('hidden');
-            
+
             axios.get("{{env('API_BASE_URL')}}house/" + houseSelected + "/retrieve").then((response) => {
                 // alert("gogo "+houseSelected)
                 var house_rooms = response.data["rooms"];

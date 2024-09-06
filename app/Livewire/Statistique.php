@@ -47,7 +47,7 @@ class Statistique extends Component
     ###___HOUSES
     function refreshThisHousesHouses()
     {
-        $this->houses = House::all();
+        $this->houses = House::where("visible",1)->get();
         $this->houses_count = count($this->houses);
     }
 
@@ -65,100 +65,6 @@ class Statistique extends Component
         $this->show_locatorsBefore = false;
         $this->show_locatorsAfter = false;
         $this->currentHouse = [];
-    }
-
-    public function showLocatorBeforeStates(int $houseId)
-    {
-        set_time_limit(0);
-
-        $this->show_locatorsAfter = false;
-        $location = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/paiement/{$houseId}/filtre_after_stateDate_stoped")->json();
-
-        if (array_key_exists("erros", $location)) {
-            $this->locatorsBefore = [];
-            $this->generalError = $location["erros"];
-        } else {
-            $this->locatorsBefore = $location["data"]["beforeStopDate"];
-            $this->total_locators = $location["data"]["total_locators"];
-            $this->beforeStopDateTotal_to_paid = $location["data"]["beforeStopDateTotal_to_paid"];
-            $this->generalError = "";
-        }
-        $this->current_houseId = $houseId;
-        $this->refreshCurrentHouse($houseId);
-
-        if ($this->show_locatorsBefore) {
-            $this->show_locatorsBefore = false;
-        } else {
-            $this->show_locatorsBefore = true;
-        }
-
-        $this->showCautions = false;
-    }
-
-    public function showLocatorAfterStates(int $houseId)
-    {
-        set_time_limit(0);
-
-        $this->show_locatorsBefore = false;
-        $location = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/paiement/{$houseId}/filtre_after_stateDate_stoped")->json();
-
-        if (array_key_exists("erros", $location)) {
-            $this->locatorsAfter = [];
-            $this->generalError = $location["erros"];
-        } else {
-            $this->locatorsAfter = $location["data"]["afterStopDate"];
-            $this->total_locators = $location["data"]["total_locators"];
-            $this->afterStopDateTotal_to_paid = $location["data"]["afterStopDateTotal_to_paid"];
-            $this->generalError = "";
-        }
-
-        // dd($this->afterStopDateTotal_to_paid);
-        $this->current_houseId = $houseId;
-        $this->refreshCurrentHouse($houseId);
-
-        if ($this->show_locatorsAfter) {
-            $this->show_locatorsAfter = false;
-        } else {
-            $this->show_locatorsAfter = true;
-        }
-
-        $this->showCautions = false;
-    }
-
-    function ImprimeLocatorsAfterStateStoped($houseId)
-    {
-        set_time_limit(0);
-        $action = "after";
-        $response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/location/" . $houseId . "/$action/imprime_states_all_system")->json();
-
-        if (!$response) {
-            $this->generalError = "Une erreure est survenue! Veuillez bien réessayer plus tard";
-        } else {
-            if (!$response["status"]) {
-                $this->generalError = $response["erros"];
-            } else {
-                $this->showCautions = true;
-                $this->cautions_link = $response["data"]["caution_html_url"];
-            }
-        }
-    }
-
-    function ImprimeLocatorsBeforeStateStoped($houseId)
-    {
-        set_time_limit(0);
-        $action = "before";
-        $response = Http::withHeaders($this->headers)->get($this->BASE_URL . "immo/location/" . $houseId . "/$action/imprime_states_all_system")->json();
-
-        if (!$response) {
-            $this->generalError = "Une erreure est survenue! Veuillez bien réessayer plus tard";
-        } else {
-            if (!$response["status"]) {
-                $this->generalError = $response["erros"];
-            } else {
-                $this->showCautions = true;
-                $this->cautions_link = $response["data"]["caution_html_url"];
-            }
-        }
     }
 
     public function render()
