@@ -80,11 +80,17 @@
                             </td>
                             <td class="text-center">
                                 @if($house['house_last_state'])
-                                @if($house['house_last_state']["proprietor_paid"])
-                                <button disabled class="btn btn-sm bg-light text-success">Payé</button>
-                                @else
-                                <button disabled class="btn btn-sm bg-light text-red"> Non payé</button>
-                                @endif
+                                    @if($house['house_last_state']["proprietor_paid"])
+                                    <button disabled class="btn btn-sm bg-light text-success">Payé</button>
+                                    @elseif ($house->PayementInitiations->last())
+                                        @if ($house->PayementInitiations->last()->status==3)
+                                        <button class="btn btn-sm bg-light text-red" title="{{$house->PayementInitiations->last()->rejet_comments}}"> <i class="bi bi-eye"></i> Rejeté</button>
+                                        @else
+                                        <button disabled class="btn btn-sm bg-light text-red"> Non payé</button>
+                                        @endif
+                                    @else
+                                    <button disabled class="btn btn-sm bg-light text-red"> Non payé</button>
+                                    @endif
                                 @else
                                 ---
                                 @endif
@@ -106,7 +112,7 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <a target="__blank" href="{{route('house.ShowHouseStateImprimeHtml',crypId($house['id']))}}" class="btn text-dark btn-sm bg-light"><i class="bi bi-file-earmark-pdf-fill"></i> Imprimer les états</button>
+                                <a target="_blank" href="{{route('house.ShowHouseStateImprimeHtml',crypId($house['id']))}}" class="btn text-dark btn-sm bg-light"><i class="bi bi-file-earmark-pdf-fill"></i> Imprimer les états</button>
                             </td>
                         </tr>
 

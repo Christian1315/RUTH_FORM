@@ -452,7 +452,6 @@
             });
         });
 
-        $(".table-responsive-list").prepend("<div class = 'btn-group' role = 'group' aria-label = 'First group' > <button type='button' " +onclick="printBtn()"  +" class='btn btn-secondary'> Excel </button>")
     </script>
 
     </html>

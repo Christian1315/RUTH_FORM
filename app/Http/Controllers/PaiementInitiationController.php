@@ -219,10 +219,22 @@ class PaiementInitiationController extends Controller
 
         ###___ACTUALISATION DU STATE DANS L'ARRET DES ETATS
         $state = HomeStopState::where(["house" => $PaiementInitiation->House->id])->find($PaiementInitiation->House->States->last()->id);
-        if ($state) {
-            $state->proprietor_paid = 0;
-            $state->save();
+        // detachement des factures loiées à ce state
+        foreach ($state->AllFactures as $facture) {
+            $facture->state = null;
+            $facture->save();
+
+            if ($facture->state_facture) {
+                $facture->delete();
+            }
         }
+        // if ($state) {
+        //     $state->proprietor_paid = 0;
+        //     $state->save();
+        // }
+
+        //suppression du state
+        $state->delete();
 
         ####___
         $PaiementInitiation->save();

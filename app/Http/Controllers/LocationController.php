@@ -26,7 +26,7 @@ class LocationController extends Controller
     #VERIFIONS SI LE USER EST AUTHENTIFIE
     public function __construct()
     {
-        $this->middleware(['auth'])->except(["_ManageCautions", "_ShowCautionsForHouseByPeriod"]);
+        $this->middleware(['auth'])->except(["_ManageCautions", "_ShowCautionsForHouseByPeriod","_ShowCautionsByPeriod"]);
     }
 
     ########==================== ROOM TYPE VALIDATION ===================#####

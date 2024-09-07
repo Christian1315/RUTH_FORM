@@ -500,11 +500,14 @@ function GET_HOUSE_DETAIL_FOR_THE_LAST_STATE($house)
     foreach ($locations as $key =>  $location) {
         ###___quand il y a arrêt d'etat
         ###__on recupere les factures du dernier arrêt des etats de la maison
-        $location_factures = Facture::where(["location" => $location->id, "state" => $house_last_state->id, "state_facture" => 0])->get();
-
-        foreach ($location_factures as $facture) {
-            array_push($house_factures_nbr_array, $facture);
-            array_push($house_amount_nbr_array, $facture->amount);
+        $location_factures = [];
+        if ($house_last_state) {
+            $location_factures = Facture::where(["location" => $location->id, "state" => $house_last_state->id, "state_facture" => 0])->get();
+    
+            foreach ($location_factures as $facture) {
+                array_push($house_factures_nbr_array, $facture);
+                array_push($house_amount_nbr_array, $facture->amount);
+            }
         }
 
         ####_____REFORMATION DU LOCATAIRE DE CETTE LOCATION
