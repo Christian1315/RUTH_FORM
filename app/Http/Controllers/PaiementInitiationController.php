@@ -229,6 +229,13 @@ class PaiementInitiationController extends Controller
                 $facture->delete();
             }
         }
+        // if ($state) {
+        //     $state->proprietor_paid = 0;
+        //     $state->save();
+        // }
+
+        //suppression du state
+        $state->delete();
 
         ##__retranchement de l'initiation de payement 
         $PaiementInitiation->old_state = $state->id;

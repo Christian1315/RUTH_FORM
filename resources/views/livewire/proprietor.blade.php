@@ -180,7 +180,7 @@
                             <td class="text-center">{{$proprietor["phone"]}}</td>
                             <td class="text-center">{{$proprietor["email"]}}</td>
                             <td class="text-center">{{$proprietor["piece_number"]}}</td>
-                            <td class="text-center"><img src="{{$proprietor['mandate_contrat']}}" class="img-fluid" width="50px" height="50px" srcset="">
+                            <td class="text-center"> <a target="_blank" href="{{$proprietor['mandate_contrat']}}" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a>
                             </td>
                             <td class="text-center">{{$proprietor["adresse"]}}</td>
                             <td class="text-center">
