@@ -251,7 +251,7 @@
                             <td class="text-center">{{$house["Supervisor"]["name"]}}</td>
                             <td class="text-center">{{$house["Proprietor"]["lastname"]}} {{$house["Proprietor"]["firstname"]}}</td>
                             <td class="text-center">
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#showRooms_{{$house['id']}}" class="btn btn-sm bg-warning">
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#showRooms" onclick="show_rooms_fun({{$house['id']}})" class="btn btn-sm bg-warning">
                                     <i class="bi bi-eye-fill"></i> &nbsp; Voir
                                 </button>
                             </td>
@@ -274,7 +274,7 @@
                                         </li>
 
                                         <li>
-                                            <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal_{{$house['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
+                                            <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal" onclick="updateModal_fun({{$house['id']}})"><i class="bi bi-person-lines-fill"></i> Modifier</button>
                                         </li>
                                         @endif
 
@@ -285,124 +285,188 @@
                                         @endif
 
                                         <li>
-                                            <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#cautionModal_{{$house['id']}}"><i class="bi bi-file-earmark-pdf-fill"></i> Gestion des cautions </button>
+                                            <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#cautionModal" onclick="cautionModal_fun({{$house['id']}})"><i class="bi bi-file-earmark-pdf-fill"></i> Gestion des cautions </button>
                                         </li>
                                     </ul>
                                 </div>
                             </td>
                         </tr>
-
-                        <!-- ###### MODEL D'AFFICHAGE DES MAISONS ###### -->
-                        <div class="modal fade" id="showRooms_{{$house['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title fs-5" id="exampleModalLabel">Chambre: <strong> <em class="text-red"> {{$house['name']}}</em> </strong> </h6>
-                                    </div>
-                                    <div class="modal-body">
-                                        <h6 class="">Total de chambre: <em class="text-red"> {{count($house->Rooms)}}</em> </h6>
-                                        <ul class="list-group">
-                                            @foreach($house->Rooms as $room)
-                                            <li class="list-group-item"><strong>N° :</strong> {{$room->number}}, <strong>Loyer :</strong> {{$room->loyer}}, <strong>Montant total :</strong> {{$room->total_amount}} </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ###### MODEL DE MODIFICATION ###### -->
-                        <div class="modal fade" id="updateModal_{{$house['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red"> {{$house['name']}}</em> </strong> </h6>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{route('house.UpdateHouse',$house['id'])}}" method="post" class="p-3 animate__animated animate__bounce">
-                                            @csrf
-                                            @method("PATCH")
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <span>Nom</span>
-                                                        <input value="{{$house['name']}}" type="text" name="name" placeholder="Nom ..." class="form-control">
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <span class="">Longitude</span>
-                                                        <input value="{{$house['longitude']}}" type="text" name="longitude" placeholder="Longitude ..." class="form-control">
-                                                    </div><br>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <span>Latitude</span>
-                                                        <input value="{{$house['latitude']}}" type="text" name="latitude" placeholder="Latitude" class="form-control">
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <span>Géolocalisation</span>
-                                                        <input value="{{$house['geolocalisation']}}" type="text" placeholder="Geolocalisation" name="geolocalisation" class="form-control">
-                                                    </div><br>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <span>Date d'échéance du propriétaire</span>
-                                                            <input value="{{$house['proprio_payement_echeance_date']}}" type="date" name="adresse" class="form-control">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <span>Commission (en %)</span>
-                                                            <input value="{{$house['commission_percent']}}" type="text" placeholder="Commission" name="commission_percent" class="form-control">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-sm bg-dark">Modifier</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- #### MODEL DE GESTION DES CAUTIONS -->
-                        <div class="modal fade" id="cautionModal_{{$house['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="">Maison : <em class="text-red"> {{$house["name"]}} </em> </h6>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{route('house.GenerateCautionByPeriod',crypId($house->id))}}" method="POST">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <span>Date de début</span>
-                                                    <input name="first_date" type="date" required name="first_date" class="form-control" id="">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <span class="">Date de fin</span>
-                                                    <input name="last_date" type="date" required name="last_date" class="form-control" id="">
-                                                </div>
-                                                <br>
-                                            </div>
-                                            <br>
-                                            <div class="text-center">
-                                                <button type="submit" class="w-100 text-center bg-red btn btn-sm">Génerer</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+
+    <!-- ###### MODEL D'AFFICHAGE DES CHAMBRES ###### -->
+    <div class="modal fade" id="showRooms" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fs-5" id="exampleModalLabel">Maison: <strong> <em class="text-red" id="house_fullname"> {{$house['name']}}</em> </strong> </h6>
+                </div>
+                <div class="modal-body">
+                    <h6 class="">Total de chambre: <em class="text-red" id="house_rooms_count"> </em> </h6>
+                    <ul class="list-group" id="house_rooms">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ###### MODEL DE MODIFICATION ###### -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red" id="update_house_fullname"> </em> </strong> </h6>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('house.UpdateHouse',$house['id'])}}" method="post" class="p-3 animate__animated animate__bounce">
+                        @csrf
+                        @method("PATCH")
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <span>Nom</span>
+                                    <input id="name" type="text" name="name" placeholder="Nom ..." class="form-control">
+                                </div><br>
+                                <div class="mb-3">
+                                    <span class="">Longitude</span>
+                                    <input id="longitude" type="text" name="longitude" placeholder="Longitude ..." class="form-control">
+                                </div><br>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <span>Latitude</span>
+                                    <input id="latitude" type="text" name="latitude" placeholder="Latitude" class="form-control">
+                                </div><br>
+                                <div class="mb-3">
+                                    <span>Géolocalisation</span>
+                                    <input id="geolocalisation" type="text" placeholder="Geolocalisation" name="geolocalisation" class="form-control">
+                                </div><br>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <span>Date d'échéance du propriétaire</span>
+                                        <input id="proprio_payement_echeance_date" type="date" name="proprio_payement_echeance_date" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <span>Commission (en %)</span>
+                                        <input id="commission_percent" type="text" placeholder="Commission" name="commission_percent" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-sm bg-red"><i class="bi bi-check-circle"></i> Modifier</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- #### MODEL DE GESTION DES CAUTIONS -->
+    <div class="modal fade" id="cautionModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="">Maison : <em class="text-red" id="caution_house_fullname"> </em> </h6>
+                </div>
+                <div class="modal-body">
+                    <form id="caution_form" method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <span>Date de début</span>
+                                <input name="first_date" type="date" required name="first_date" class="form-control" id="">
+                            </div>
+                            <div class="col-md-6">
+                                <span class="">Date de fin</span>
+                                <input name="last_date" type="date" required name="last_date" class="form-control" id="">
+                            </div>
+                            <br>
+                        </div>
+                        <br>
+                        <div class="text-center">
+                            <button type="submit" class="w-100 text-center bg-red btn btn-sm">Génerer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        function show_rooms_fun(id) {
+            $('#house_rooms').empty();
+
+            axios.get("{{env('API_BASE_URL')}}house/" + id + "/retrieve").then((response) => {
+                var house = response.data
+                var house_fullname = house["name"];
+                var house_rooms = house["rooms"]
+
+                $("#house_fullname").html(house_fullname)
+                $("#house_rooms_count").html(house_rooms.length)
+
+                for (var i = 0; i < house_rooms.length; i++) {
+                    var number = house_rooms[i].number;
+                    var loyer = house_rooms[i].loyer;
+                    var total_amount = house_rooms[i].total_amount;
+                    $('#house_rooms').append("<li class='list-group-item'><strong>N° :</strong>" + number + ", <strong>Loyer :</strong>" + loyer + ", <strong>Montant total :</strong>" + total_amount + " </li>");
+                }
+            }).catch((error) => {
+                alert("une erreure s'est produite")
+                console.log(error)
+            })
+        }
+
+        function updateModal_fun(id) {
+
+            axios.get("{{env('API_BASE_URL')}}house/" + id + "/retrieve").then((response) => {
+                var house = response.data
+                var house_fullname = house["name"];
+
+                $("#update_house_fullname").html(house_fullname)
+
+                $("#name").val(house["name"])
+                $("#longitude").val(house["longitude"])
+                $("#latitude").val(house["latitude"])
+                $("#geolocalisation").val(house["geolocalisation"])
+                $("#proprio_payement_echeance_date").val(house["proprio_payement_echeance_date"])
+                $("#commission_percent").val(house["commission_percent"])
+                $("#proprio_payement_echeance_date").val(house["proprio_payement_echeance_date"])
+
+            }).catch((error) => {
+                alert("une erreure s'est produite")
+                console.log(error)
+            })
+        }
+
+        function cautionModal_fun(id) {
+            axios.get("{{env('API_BASE_URL')}}house/" + id + "/retrieve").then((response) => {
+                var house = response.data
+                var house_fullname = house["name"];
+
+                $("#caution_house_fullname").html(house_fullname)
+                $("#caution_form").attr("action", "/house/" + id + "/generate_cautions_for_house_by_period")
+                $("#caution_form").attr("method", "POST")
+                console.log($("#caution_form"))
+
+            }).catch((error) => {
+                alert("une erreure s'est produite")
+                console.log(error)
+            })
+        }
+    </script>
 </div>

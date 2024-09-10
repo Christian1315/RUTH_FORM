@@ -16,4 +16,5 @@ class ProprietorController extends Controller
        return response()->json($proprietor);
     }
 
+
 }

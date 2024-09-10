@@ -181,7 +181,7 @@ class HouseController extends Controller
     #GENERER CAUTIONS PAR PERIODE
     function GenerateCautionByPeriod(Request $request, $houseId)
     {
-        $house = House::find(deCrypId($houseId));
+        $house = House::find($houseId);
         if (!$house) {
             alert()->error("Echec", "Désolé! Cette maison n'existe pas!");
             return back()->withInput();
