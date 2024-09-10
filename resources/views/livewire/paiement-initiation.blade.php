@@ -21,7 +21,7 @@
                         @foreach($initiations as $initiation)
                         <tr class="align-items-center">
                             <td class="text-center">{{$loop->index + 1}}</td>
-                            <td class="text-center"> <strong class="text-dark shadow btn">{{$initiation->House->States->last()->stats_stoped_day}} </strong></td>
+                            <td class="text-center"> <strong class="text-dark shadow btn">{{$initiation->House->States->last()?$initiation->House->States->last()->stats_stoped_day:$initiation->stats_stoped_day}} </strong></td>
                             <td class="text-center"> <strong class="text-red shadow btn">{{$initiation->House->name}} </strong></td>
                             <td class="text-center">{{$initiation->House->Proprietor->lastname}} {{$initiation->House->Proprietor->firstname}}</td>
                             <td class="text-center">
@@ -40,7 +40,9 @@
                                 <span class="text-success">Déjà rejetée</span>
                                 @elseif($initiation['Status']["id"]==1)
                                 <a href="{{route('payement_initiation.ValidePaiementInitiation',crypId($initiation->id))}}" class="btn btn-sm btn-success" title="Valider"><i class="bi bi-check-circle"></i> </a>
+                                @if($initiation->state!=null)
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#payement_rejet_{{$initiation->id}}" class="btn btn-sm btn-danger" title="Rejeter"><i class="bi bi-x-circle"></i> </a>
+                                @endif
                                 @endif
                             </td>
                         </tr>
@@ -60,10 +62,10 @@
                                 </div>
                             </div>
                         </div>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            @endforeach
-            </tbody>
-            </table>
         </div>
     </div>
 </div>

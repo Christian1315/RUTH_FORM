@@ -122,21 +122,21 @@ class AgencyController extends Controller
 
         // 
         #ENREGISTREMENT DE L'AGENCE ENTANT QUE USER DANS LA DB
-        $userData = [
-            "user_agency" => $created_agency->id,
-            "owner" => $formData["owner"],
-            "name" => $created_agency->name,
-            "username" => $created_agency->number,
-            "password" => $created_agency->number,
-            "phone" => $created_agency->phone,
-            "email" => $created_agency->email,
+        // $userData = [
+        //     "user_agency" => $created_agency->id,
+        //     "owner" => $formData["owner"],
+        //     "name" => $created_agency->name,
+        //     "username" => $created_agency->number,
+        //     "password" => $created_agency->number,
+        //     "phone" => $created_agency->phone,
+        //     "email" => $created_agency->email,
 
-            "rang_id" => 2,
-            "profil_id" => 5,
-        ];
+        //     "rang_id" => 2,
+        //     "profil_id" => 5,
+        // ];
 
-        ###__
-        $agency_user = User::create($userData);
+        // ###__
+        // $agency_user = User::create($userData);
 
 
         ###___GENERATION DES COMPTES DE CETTE AGENCE
@@ -151,15 +151,15 @@ class AgencyController extends Controller
         }
         ###___
 
-        try {
-            Send_Notification(
-                $agency_user,
-                "Création de compte sur Perfect ERP",
-                "Votre compte agence a été crée avec succès sur Perfect ERP",
-            );
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
+        // try {
+        //     Send_Notification(
+        //         $agency_user,
+        //         "Création de compte sur Perfect ERP",
+        //         "Votre compte agence a été crée avec succès sur Perfect ERP",
+        //     );
+        // } catch (\Throwable $th) {
+        //     //throw $th;
+        // }
 
         alert()->success('Succès', "Agence ajoutée avec succès!!");
         return redirect()->back()->withInput();

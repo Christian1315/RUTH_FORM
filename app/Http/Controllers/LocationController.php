@@ -246,20 +246,20 @@ class LocationController extends Controller
         Validator::make($formData, self::location_rules(), self::location_messages())->validate();
 
         ####___VERIFIONS S'IL Y A ELECTRICITE OU PAS
-        if ($request->discounter == true) {
-            Validator::make(
-                $formData,
-                [
-                    "kilowater_price" => ["required", "numeric"],
-                ],
-                [
-                    "kilowater_price.required" => "Veuillez préciser le prix du kilowatère!",
-                    "kilowater_price.date" => "Ce champ est de type numérique!",
-                ]
-            )->validate();
-        } else {
-            $formData["kilowater_price"] = 0;
-        }
+        // if ($request->discounter == true) {
+        //     Validator::make(
+        //         $formData,
+        //         [
+        //             "kilowater_price" => ["required", "numeric"],
+        //         ],
+        //         [
+        //             "kilowater_price.required" => "Veuillez préciser le prix du kilowatère!",
+        //             "kilowater_price.date" => "Ce champ est de type numérique!",
+        //         ]
+        //     )->validate();
+        // } else {
+        //     $formData["kilowater_price"] = 0;
+        // }
 
 
         $user = request()->user();
@@ -273,7 +273,7 @@ class LocationController extends Controller
 
         ##__LES INFOS LIEES AU COMPTERUELECTRIQUE D'UNE LOCATION REVIENNENT AUX INFOS ELECYTRICQUE DE LMA CHAMBRE CHOISIE
         $formData["discounter"] = $room->electricity ? true : false;
-        $formData["kilowater_price"] = $room->electricity ? $room->electricity_unit_price : 0;
+        $formData["kilowater_price"] = $room->electricity ? ($room->electricity_unit_price ? $room->electricity_unit_price : 0) : 0;
         ###___
 
         if ($request->pre_paid == $request->post_paid) {
@@ -1308,8 +1308,9 @@ class LocationController extends Controller
 
     function _ShowCautionsForHouseByPeriod(Request $request, $houseId, $first_date, $last_date)
     {
+        // dd($houseId);
         ###___
-        $locations = Location::where(["house" => $houseId])->with(["Owner", "House", "Locataire", "Type", "Status", "Room"])->whereBetween('created_at', [$first_date, $last_date])->get();
+        $locations = Location::where(["house" => $houseId])->where('created_at', ">=", $first_date)->where('created_at', ">=", $last_date)->get();
 
         ###_____
         $cautions_eau = [];

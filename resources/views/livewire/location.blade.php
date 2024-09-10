@@ -1,5 +1,5 @@
 <div>
-   
+
     @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
     <!-- AJOUT D'UN TYPE DE CHAMBRE -->
     <div class="text-left">
@@ -304,12 +304,15 @@
                                 <label>Selectionnez la location concernée </label>
                                 <select name="location" onchange="locationSelection()" id="location_selected" class="form-select form-control" aria-label="Default select example">
                                     <option value="">** **</option>
-                                    @foreach(auth()->user()->MyLocations as $location)
+                                    @foreach($locations as $location)
+                                    <!-- les locations dont le user est superviseur de la maison -->
+                                    @if ($location->House->supervisor==auth()->user()->id)
                                     <option value="{{$location['id']}}" @if($location->id==old('location') ) selected @endif>
                                         <strong>Maison: <em class="text-red"> {{$location['House']["name"]}}</em> </strong>;
                                         <strong>Chambre: <em class="text-red"> {{$location['Room']['number']}} </em> </strong>;
                                         <strong>Locataire: <em class="text-red"> {{$location['Locataire']['name']}} {{$location['Locataire']['prenom']}}</em> </strong>
                                     </option>
+                                    @endif
                                     @endforeach
                                 </select>
                                 @error('location')

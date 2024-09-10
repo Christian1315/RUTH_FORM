@@ -81,7 +81,7 @@ class PaiementInitiationController extends Controller
         }
 
         $formData["agency"] = $agency->id;
-        $formData["state"] = $house->States->last()->id;
+        $formData["state"] = $house->States->last()?$house->States->last()->id:null;
         $formData["agency"] = $agency->id;
 
         ###__========== VERIFIONS D'ABORD LA SUFFISANCE DU SOLDE DU COIMPTE LOYER POUR EFFECTUER CETTE INITIATION ===========#
@@ -219,13 +219,30 @@ class PaiementInitiationController extends Controller
 
         ###___ACTUALISATION DU STATE DANS L'ARRET DES ETATS
         $state = HomeStopState::where(["house" => $PaiementInitiation->House->id])->find($PaiementInitiation->House->States->last()->id);
-        if ($state) {
-            $state->proprietor_paid = 0;
-            $state->save();
+        // detachement des factures loiées à ce state
+        foreach ($state->AllFactures as $facture) {
+            $facture->old_state = $facture->state;
+            $facture->state = null;
+            $facture->save();
+
+            if ($facture->state_facture) {
+                $facture->delete();
+            }
         }
 
+        ##__retranchement de l'initiation de payement 
+        $PaiementInitiation->old_state = $state->id;
+        $PaiementInitiation->stats_stoped_day = $state->stats_stoped_day;
+        $PaiementInitiation->recovery_rapport = $state->recovery_rapport;
+        $PaiementInitiation->proprietor_paid = $state->proprietor_paid;
+
+        $PaiementInitiation->state = null;
+        
         ####___
         $PaiementInitiation->save();
+
+        //suppression du state
+        $state->delete();
         ####___
         alert()->success("Succès", "Initiation de paiement réjetée avec succès!");
         return back()->withInput();

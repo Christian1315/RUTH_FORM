@@ -1,40 +1,4 @@
 <div>
-    @if($show_paiement_form)
-    <div class="container">
-        <div class="row">
-            <div class="col-md-2"></div>
-            <div class="col-md-8">
-                <form class="shadow-lg p-3 animate__animated animate__bounce" wire:submit.prevent="Initiate_Sold">
-                    <i class="bi bi-file-x float-right text-red" style="font-size: 20px;cursor:pointer" wire:click="showPaiementForm"></i>
-
-                    <h5 class="">Paiement au Propriétaire <em class="text-red"> {{$currentHouse["proprietor"]["firstname"]}} {{$currentHouse["proprietor"]["lastname"]}}</em></h5>
-                    <h6 class="">Maison: <em class="text-red"> {{$currentHouse["name"]}}</em></h6>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="" class="d-block">Propriétaire</label>
-                                <span class="text-red"> {{$proprietor_error}} </span>
-                                <input disabled type="text" name="proprietor" placeholder="{{$currentHouse['proprietor']['firstname']}} {{$currentHouse['proprietor']['lastname']}}" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label for="" class="d-block">Montant à initier <span class="text-red"> (fcfa)</span> </label>
-                                <span class="text-red"> {{$sold_error}} </span>
-                                <input disabled wire:model="sold" type="number" name="sold" placeholder="Montant à initier ..." class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-right mt-2">
-                        <button class="btn btn-sm bg-red">Payer</button>
-                    </div>
-                </form>
-            </div>
-            <div class="col-md-2"></div>
-        </div>
-    </div>
-    @endif
-
-
-    <br><br><br>
     <!-- TABLEAU DE LISTE -->
     <div class="row">
         <div class="col-12">
@@ -72,21 +36,37 @@
                                 <button class="btn btn-sm btn-light shadow-lg text-red"><i class="bi bi-currency-exchange"></i> <strong> {{$house["last_depenses"]}} fcfa </strong> </button>
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-light shadow-lg text-success"><i class="bi bi-currency-exchange"></i> <strong> {{$house["net_to_paid"]}} fcfa </strong> </button>
+                                <button class="btn btn-sm btn-light shadow-lg text-success"><i class="bi bi-currency-exchange"></i> <strong> {{$house["net_to_paid"]!=0?$house["net_to_paid"] : ($house->PayementInitiations->last()? $house->PayementInitiations->last()->amount:0)}} fcfa </strong> </button>
                             </td>
 
                             <td class="text-center">
-                                <button class="btn btn-sm btn-light shadow-lg text-dark"> <i class="bi bi-calendar-check-fill"></i> <strong> {{$house["house_last_state"]?$house["house_last_state"]["stats_stoped_day"]:"---"}} </strong> </button>
+                                <button class="btn btn-sm btn-light shadow-lg text-dark"> <i class="bi bi-calendar-check-fill"></i> <strong> {{$house["house_last_state"]?$house["house_last_state"]["stats_stoped_day"] : ($house->PayementInitiations->last()? $house->PayementInitiations->last()->stats_stoped_day:"---")}} </strong> </button>
                             </td>
                             <td class="text-center">
                                 @if($house['house_last_state'])
                                 @if($house['house_last_state']["proprietor_paid"])
                                 <button disabled class="btn btn-sm bg-light text-success">Payé</button>
+                                @elseif ($house->PayementInitiations->last())
+                                @if ($house->PayementInitiations->last()->status==3)
+                                <button class="btn btn-sm bg-light text-red" title="{{$house->PayementInitiations->last()->rejet_comments}}"> <i class="bi bi-eye"></i> Rejeté</button>
                                 @else
                                 <button disabled class="btn btn-sm bg-light text-red"> Non payé</button>
                                 @endif
                                 @else
+                                <button disabled class="btn btn-sm bg-light text-red"> Non payé</button>
+                                @endif
+                                @else
+
+                                @if($house->PayementInitiations->last())
+                                @if($house->PayementInitiations->last()->status==3)
+                                <button disabled class="btn btn-sm bg-light text-red"> Non payé</button>
+                                @else
+                                <button disabled class="btn btn-sm bg-light text-red"> Repayé</button>
+                                @endif
+                                @else
                                 ---
+                                @endif
+
                                 @endif
                             </td>
                             <td class="text-center">
@@ -94,19 +74,23 @@
                                 @if($house['house_last_state']["proprietor_paid"])
                                 ---
                                 @else
-                                @if($house['last_payement_initiation'])
-                                <textarea name="" rows="1" class="form-control" placeholder="Opération réjetée pour raison de :{{$house['last_payement_initiation']['rejet_comments']}}"></textarea>
-                                <button class="btn btn-sm bg-red" wire:click="showPaiementForm({{$house['id']}},{{$house['house_last_state']['id']}},{{$house['net_to_paid']}})"><i class="bi bi-currency-exchange"></i> Payer à nouveau</button>
+                                <button class="btn btn-sm bg-red" data-bs-toggle="modal" data-bs-target="#paid_{{$house['id']}}"><i class="bi bi-currency-exchange"></i>Payer</button>
+                                @endif
                                 @else
-                                <button class="btn btn-sm bg-red" data-bs-toggle="modal" data-bs-target="#paid_{{$house['id']}}"><i class="bi bi-currency-exchange"></i> Payer</button>
-                                @endif
-                                @endif
+                                @if($house->PayementInitiations->last())
+                                @if($house->PayementInitiations->last()->status==3)
+                                <button class="btn btn-sm bg-red" data-bs-toggle="modal" data-bs-target="#paid_{{$house['id']}}" title="Opération réjetée pour raison de -- ({{$house->PayementInitiations->last()->rejet_comments}})"><i class="bi bi-currency-exchange"></i> {{$house['net_to_paid']!=0?$house['net_to_paid']:($house->PayementInitiations->last()?$house->PayementInitiations->last()->amount:0)}} Repayer</button>
                                 @else
                                 ---
                                 @endif
+
+                                @else
+                                ---
+                                @endif
+                                @endif
                             </td>
                             <td class="text-center">
-                                <a target="__blank" href="{{route('house.ShowHouseStateImprimeHtml',crypId($house['id']))}}" class="btn text-dark btn-sm bg-light"><i class="bi bi-file-earmark-pdf-fill"></i> Imprimer les états</button>
+                                <a target="_blank" href="{{route('house.ShowHouseStateImprimeHtml',crypId($house['id']))}}" class="btn text-dark btn-sm bg-light"><i class="bi bi-file-earmark-pdf-fill"></i> Imprimer les états</button>
                             </td>
                         </tr>
 
@@ -126,8 +110,8 @@
                                                 <input type="hidden" name="house" value="{{$house->id}}">
                                                 <div class="mb-3 p-3">
                                                     <label for="" class="d-block">Montant à payer <span class="text-red"> (fcfa)</span> </label>
-                                                    <input type="hidden" name="amount" value="{{$house['net_to_paid']}}" class="form-control">
-                                                    <input disabled type="number" value="{{$house['net_to_paid']}}" class="form-control">
+                                                    <input type="hidden" name="amount" value="{{$house['net_to_paid']!=0?$house['net_to_paid']:($house->PayementInitiations->last()?$house->PayementInitiations->last()->amount:0)}}" class="form-control">
+                                                    <input disabled type="number" value="{{$house['net_to_paid']!=0?$house['net_to_paid']:($house->PayementInitiations->last()?$house->PayementInitiations->last()->amount:0)}}" class="form-control">
                                                     @error("amount")
                                                     <span class="text-red">{{$message}}</span>
                                                     @enderror

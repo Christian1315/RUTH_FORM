@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\HouseController;
 use App\Http\Controllers\Api\V1\LocationController;
+use App\Http\Controllers\Api\V1\ProprietorController;
 use App\Http\Controllers\Api\V1\RoomController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix("location")->group(function () {
             Route::controller(LocationController::class)->group(function () {
                 Route::any('{id}/retrieve', 'RetrieveLocation'); #RECUPERATION D'UNE LOCATION
+            });
+        });
+        ##___
+
+        Route::prefix("proprietor")->group(function () {
+            Route::controller(ProprietorController::class)->group(function () {
+                Route::any('{id}/retrieve', 'RetrieveProprietor'); #RECUPERATION D'UN PROPRIETAIRE
             });
         });
         ##___

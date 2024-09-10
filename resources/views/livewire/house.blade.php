@@ -1,5 +1,5 @@
 <div>
-    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()) || auth()->user()->is_admin)
     <!-- AJOUT D'UN TYPE DE CHAMBRE -->
     <div class="text-left">
         <button type="button" class="btn btn btn-sm bg-light shadow roundered" data-bs-toggle="modal" data-bs-target="#room_type">
@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
+    @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()) || auth()->user()->is_admin)
     <div>
         <div class="d-flex header-bar">
             <h2 class="accordion-header">

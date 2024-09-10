@@ -485,7 +485,7 @@ class HouseController extends Controller
     ####_____IMPRIME HOUSE STATE
     function ShowHouseStateImprimeHtml(Request $request, $houseId)
     {
-        $house = House::where("visible",1)->find(deCrypId($houseId));
+        $house = House::where("visible", 1)->find(deCrypId($houseId));
         if (!$house) {
             alert()->error("Echec", "Cette maison n'existe pas!");
             return back();
@@ -497,11 +497,17 @@ class HouseController extends Controller
         $house_factures_nbr_array = [];
         $house_amount_nbr_array = [];
 
+        $house_last_state = null;
         ####_____DERNIER ETAT DE CETTE MAISON
         $house_last_state = $house->States->last();
         if (!$house_last_state) {
-            alert()->error("Echec", "Cette maison ne dispose d'aucun arrêt d'état");
-            return back();
+            if ($house->PayementInitiations->last()) {
+                if ($house->PayementInitiations->last()->state) { ####__quand l'initiation de payement n'est pas rejetée
+                    ####____
+                    alert()->error("Echec", "Cette maison ne dispose d'aucun arrêt d'état");
+                    return back();
+                }
+            }
         }
 
         $locations = $house->Locations;
@@ -510,7 +516,12 @@ class HouseController extends Controller
         foreach ($locations as $key =>  $location) {
             ###___quand il y a arrêt d'etat
             ###__on recupere les factures du dernier arrêt des etats de la maison
-            $location_factures = Facture::where(["location" => $location->id, "state" => $house_last_state->id, "state_facture" => 0])->get();
+
+            if ($house_last_state) {
+                $location_factures = Facture::where(["location" => $location->id, "state" => $house_last_state->id, "state_facture" => 0])->get();
+            } else {
+                $location_factures = Facture::where(["location" => $location->id, "old_state" => $house->PayementInitiations->last()->old_state, "state_facture" => 0])->get();
+            }
 
             foreach ($location_factures as $facture) {
                 array_push($house_factures_nbr_array, $facture);
@@ -629,6 +640,7 @@ class HouseController extends Controller
         //     dd($location->_locataire["nbr_month_paid"]);
         // }
         ###___
+
         $state = $house_last_state;
 
 

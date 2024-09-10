@@ -76,7 +76,7 @@
                 </div>
 
                 <br>
-                <h5 class="text-center">Date d'arrêt: <strong class="text-red"> {{Change_date_to_text($state->state_stoped_day) }} </strong> </h5>
+                <h5 class="text-center">Date d'arrêt: <strong class="text-red"> {{Change_date_to_text($state?$state->state_stoped_day:($house->PayementInitiations->last()?$house->PayementInitiations->last()->state_stoped_day:"---")) }} </strong> </h5>
                 <br>
 
                 <!-- les totaux -->
@@ -114,7 +114,7 @@
                                         </td>
 
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-light shadow-lg text-dark"> <i class="bi bi-calendar-check-fill"></i> <strong> {{$house["house_last_state"]?$house["house_last_state"]["stats_stoped_day"]:""}} </strong> </button>
+                                            <button class="btn btn-sm btn-light shadow-lg text-dark"> <i class="bi bi-calendar-check-fill"></i> <strong> {{$house["house_last_state"]?$house["house_last_state"]["stats_stoped_day"]:($house->PayementInitiations->last()?$house->PayementInitiations->last()->stats_stoped_day:"---")}} </strong> </button>
                                         </td>
                                         <td class="text-center">
                                             @if($house['house_last_state'])
@@ -207,7 +207,7 @@
                     <div class="col-md-6">
                         <h4 class="text-center" style="text-decoration: underline;">Rapport de récouvrement</h4>
                         <div class="p-3 shadow text-justify" style="border: #000 2px solid;border-radius:0px 10px ">
-                            {{$state->recovery_rapport}}
+                            {{$state?$state->recovery_rapport:($house->PayementInitiations->last()?$house->PayementInitiations->last()->recovery_rapport:"---")}}
                         </div>
                     </div>
                     <div class="col-md-3"></div>

@@ -184,104 +184,147 @@
                             </td>
                             <td class="text-center">{{$proprietor["adresse"]}}</td>
                             <td class="text-center">
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#show_houses_{{$proprietor['id']}}" class="btn btn-sm bg-warning">
+                                <button type="button" data-bs-toggle="modal" onclick="show_houses_fun({{$proprietor['id']}})" data-bs-toggle="modal" data-bs-target="#show_houses" class="btn btn-sm bg-warning">
                                     <i class="bi bi-eye-fill"></i> &nbsp; Voir
                                 </button>
                             </td>
                             @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="text-center d-flex">
-                                <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal_{{$proprietor['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
+                                <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal" onclick="updateModal_fun({{$proprietor['id']}})"><i class="bi bi-person-lines-fill"></i> Modifier</button>
                             </td>
                             @endif
                         </tr>
-                        <!-- ###### MODEL DES MAISONS ###### -->
-                        <div class="modal fade" id="show_houses_{{$proprietor['id']}}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title fs-5" id="exampleModalLabel">Propriétaire : <strong> <em class="text-red"> {{$proprietor['firstname']}} {{$proprietor['lastname']}} </em> </strong> </h6>
-                                    </div>
-                                    <div class="modal-body">
-                                        <h6 class="">Total de maison: <em class="text-red"> {{count($proprietor->Houses)}}</em> </h6>
-
-                                        <ul class="list-group">
-                                            @foreach($proprietor->Houses as $house)
-                                            <li class="list-group-item"><strong>Nom: </strong> {{ $house->name }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ###### MODEL DE MODIFICATION ###### -->
-                        <div class="modal fade" id="updateModal_{{$proprietor['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red"> {{$proprietor['firstname']}} {{$proprietor['lastname']}} </em> </strong> </h6>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{route('proprietor.UpdateProprietor',$proprietor['id'])}}" method="post" class="shadow-lg p-3 animate__animated animate__bounce">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <span>Nom</span>
-                                                        <input value="{{old('lastname')?old('lastname'):$proprietor['lastname']}}" name="lastname" placeholder="Lastname" class="form-control">
-                                                        @error("lastname")
-                                                        <span class="text-red"> {{ $message }} </span>
-                                                        @enderror
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <span class="">Prénom</span>
-                                                        <input value="{{old('firstname')?old('firstname'):$proprietor['firstname']}}" type="text" name="firstname" placeholder="Firstname" class="form-control">
-                                                        @error("firstname")
-                                                        <span class="text-red"> {{ $message }} </span>
-                                                        @enderror
-                                                    </div><br>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <span>Téléphone</span>
-                                                        <input value="{{old('phone')?old('phone'):$proprietor['phone']}}" type="phone" name="phone" placeholder="Phone" class="form-control">
-                                                        @error("firstname")
-                                                        <span class="text-red"> {{ $message }} </span>
-                                                        @enderror
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <span>Adresse mail</span>
-                                                        <input value="{{old('email')?old('email'):$proprietor['email']}}" type="text" placeholder="Email..." name="email" class="form-control">
-                                                        @error("email")
-                                                        <span class="text-red"> {{ $message }} </span>
-                                                        @enderror
-                                                    </div><br>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="mb-3">
-                                                        <span>Adresse</span>
-                                                        <input value="{{old('adresse')?old('adresse'):$proprietor['adresse']}}" type="text" placeholder="Adresse ..." name="adresse" class="form-control">
-                                                        @error("adresse")
-                                                        <span class="text-red"> {{ $message }} </span>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-sm bg-red" data-bs-dismiss="modal">Fermer</button>
-                                                <button type="submit" class="btn btn-sm bg-dark">Modifier</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <!-- ###### MODEL DES MAISONS ###### -->
+    <div class="modal fade" id="show_houses" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fs-5" id="exampleModalLabel">Propriétaire : <strong> <em class="text-red" id="proprio_fullname"> </em> </strong> </h6>
+                </div>
+                <div class="modal-body">
+                    <h6 class="">Total de maison: <em class="text-red" id="proprio_houses_count"> </em> </h6>
+
+                    <ul class="list-group" id="show_houses_body">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ###### MODEL DE MODIFICATION ###### -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red" id="update_proprio_fullname"> </em> </strong> </h6>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('proprietor.UpdateProprietor',$proprietor['id'])}}" method="post" class="shadow-lg p-3 animate__animated animate__bounce">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <span>Nom</span>
+                                    <input id="lastname" value="{{old('lastname')}}" name="lastname" placeholder="Lastname" class="form-control">
+                                    @error("lastname")
+                                    <span class="text-red"> {{ $message }} </span>
+                                    @enderror
+                                </div><br>
+                                <div class="mb-3">
+                                    <span class="">Prénom</span>
+                                    <input id="firstname" value="{{old('firstname')}}" type="text" name="firstname" placeholder="Firstname" class="form-control">
+                                    @error("firstname")
+                                    <span class="text-red"> {{ $message }} </span>
+                                    @enderror
+                                </div><br>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <span>Téléphone</span>
+                                    <input id="phone" value="{{old('phone')}}" type="phone" name="phone" placeholder="Phone" class="form-control">
+                                    @error("phone")
+                                    <span class="text-red"> {{ $message }} </span>
+                                    @enderror
+                                </div><br>
+                                <div class="mb-3">
+                                    <span>Adresse mail</span>
+                                    <input id="email" value="{{old('email')}}" type="text" placeholder="Email..." name="email" class="form-control">
+                                    @error("email")
+                                    <span class="text-red"> {{ $message }} </span>
+                                    @enderror
+                                </div><br>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <span>Adresse</span>
+                                    <input id="adresse" value="{{old('adresse')}}" type="text" placeholder="Adresse ..." name="adresse" class="form-control">
+                                    @error("adresse")
+                                    <span class="text-red"> {{ $message }} </span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-sm bg-red"><i class="bi bi-check-circle"></i> Modifier</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        function show_houses_fun(id) {
+            $('#show_houses_body').empty();
+
+            axios.get("{{env('API_BASE_URL')}}proprietor/" + id + "/retrieve").then((response) => {
+                var proprietor = response.data
+                var proprio_fullname = proprietor["firstname"] + " " + proprietor["lastname"];
+
+                var proprietor_houses = proprietor["houses"]
+
+                $("#proprio_fullname").html(proprio_fullname)
+                $("#proprio_houses_count").html(proprietor_houses.length)
+
+                for (var i = 0; i < proprietor_houses.length; i++) {
+                    var text = proprietor_houses[i].name;
+                    $('#show_houses_body').append("<li class='list-group-item'><strong>Nom: </strong>" + text + "</li>");
+                }
+            }).catch((error) => {
+                alert("une erreure s'est produite")
+                console.log(error)
+            })
+        }
+
+        function updateModal_fun(id) {
+
+            axios.get("{{env('API_BASE_URL')}}proprietor/" + id + "/retrieve").then((response) => {
+                var proprietor = response.data
+                var proprio_fullname = proprietor["firstname"] + " " + proprietor["lastname"];
+
+                $("#update_proprio_fullname").html(proprio_fullname)
+
+                $("#firstname").val(proprietor["firstname"])
+                $("#lastname").val(proprietor["lastname"])
+                $("#phone").val(proprietor["phone"])
+                $("#email").val(proprietor["email"])
+                $("#adresse").val(proprietor["adresse"])
+
+            }).catch((error) => {
+                alert("une erreure s'est produite")
+                console.log(error)
+            })
+        }
+    </script>
 </div>

@@ -148,7 +148,6 @@ Route::controller(LocationController::class)->group(function () {
     Route::get("{houseId}/{first_date}/{last_date}/caution_html_for_house_by_period", "_ShowCautionsForHouseByPeriod");
 });
 
-
 Route::controller(AdminController::class)->group(function () {
     ###___GENERALES AGENCIES ROUTES
     Route::get('/{agency}/manage-agency', "ManageAgency")->name("manage-agency");
