@@ -227,7 +227,7 @@
                     <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red" id="update_proprio_fullname"> </em> </strong> </h6>
                 </div>
                 <div class="modal-body">
-                    <form action="{{route('proprietor.UpdateProprietor',$proprietor['id'])}}" method="post" class="shadow-lg p-3 animate__animated animate__bounce">
+                    <form id="update_form" method="post" class="shadow-lg p-3 animate__animated animate__bounce">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -283,7 +283,6 @@
         </div>
     </div>
 
-
     <script type="text/javascript">
         function show_houses_fun(id) {
             $('#show_houses_body').empty();
@@ -321,6 +320,7 @@
                 $("#email").val(proprietor["email"])
                 $("#adresse").val(proprietor["adresse"])
 
+                $("#update_form").attr("action", "/proprietor/" + proprietor.id + "/update")
             }).catch((error) => {
                 alert("une erreure s'est produite")
                 console.log(error)

@@ -258,175 +258,225 @@
                             <td class="text-center"><a href="{{$locator['mandate_contrat']}}" class="btn btn-sm btn-light" target="_blank" rel="noopener noreferrer"><i class="bi bi-eye-fill"></i></a>
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#showHouses_{{$locator['id']}}">
+                                <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#showHouses" onclick="showHouses_fun({{$locator['id']}})">
                                     <i class="bi bi-eye-fill"></i>
                                 </button>
                             </td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#showRooms_{{$locator['id']}}">
+                                <button type="button" class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#showRooms" onclick="showRooms_fun({{$locator['id']}})">
                                     <i class="bi bi-eye-fill"></i>
                                 </button>
                             </td>
                             @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="d-flex">
-                                <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#updateModal_{{$locator['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
+                                <button class="btn btn-sm bg-light" data-bs-toggle="modal" data-bs-target="#updateModal" onclick="updateModal_fun({{$locator->id}})"><i class="bi bi-person-lines-fill"></i> Modifier</button>
                                 <a href="{{ route('locator.DeleteLocataire', crypId($locator->id)) }}" class="btn btn-sm bg-red" data-confirm-delete="true"><i class="bi bi-archive-fill"></i> &nbsp; Suprimer</a>
                             </td>
                             @endif
                         </tr>
 
-                        <!-- ###### MODEL DE MODIFICATION ###### -->
-                        <div class="modal fade" id="updateModal_{{$locator['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red"> {{$locator['name']}} {{$locator['prenom']}}</em> </strong> </h6>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{route('locator.UpdateLocataire',crypId($locator['id']))}}" class="shadow-lg">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Name</label>
-                                                        <input type="text" value="{{$locator['name']}}" name="name" placeholder="Nom ..." class="form-control">
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Prénom</label>
-                                                        <input type="text" value="{{$locator['prenom']}}" name="prenom" placeholder="Prénom ..." class="form-control">
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Email</label>
-                                                        <input type="email" value="{{$locator['email']}}" name="email" placeholder="Email..." class="form-control">
-                                                    </div><br>
-                                                    <select value="{{$locator['sexe']}}" class="form-select form-control" name="sexe" aria-label="Default select example">
-                                                        <option value="Maxculin">Maxculin</option>
-                                                        <option value="Feminin">Feminin</option>
-                                                    </select>
-                                                    <br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Phone</label>
-                                                        <input value="{{$locator['phone']}}" type="phone" name="phone" placeholder="Téléphone ..." class="form-control">
-                                                    </div><br>
-                                                    <!--  -->
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Id Carte</label>
-                                                        <input value="{{$locator['card_id']}}" type="text" name="card_id" class="form-control" placeholder="ID de la carte ....">
-                                                    </div><br>
-                                                </div>
-                                                <!--  -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Adresse</label>
-                                                        <input value="{{$locator['adresse']}}" ype="text" name="adresse" class="form-control" placeholder="Adresse ....">
-                                                    </div><br>
-
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Type</label>
-                                                        <select value="{{$locator['card_type']}}" class="form-select form-control" name="card_type" aria-label="Default select example">
-                                                            @foreach($card_types as $type)
-                                                            <option value="{{$type['id']}}" @if($type['id']==$locator['card_type']) selected @endif>{{$type['name']}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Pays</label>
-                                                        <select value="{{$locator['country']}}" class="form-select form-control" name="country" aria-label="Default select example">
-                                                            @foreach($countries as $countrie)
-                                                            @if($countrie['id']==4)
-                                                            <option value="{{$countrie['id']}}" @if($countrie['id']==$locator['country']) selected @endif>{{$countrie['name']}}</option>
-                                                            @endif
-                                                            @endforeach
-                                                        </select>
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Département</label>
-                                                        <select value="{{$locator['departement']}}" class="form-select form-control" name="departement" aria-label="Default select example">
-                                                            @foreach($departements as $departement)
-                                                            <option value="{{$departement['id']}}" @if($departement['id']==$locator['departement']) selected @endif>{{$departement['name']}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Commentaire</label>
-                                                        <textarea value="{{$locator['comments']}}" rows="1" name="comments" class="form-control" placeholder="Laissez un commentaire ici" class="form-control" id=""></textarea>
-                                                    </div><br>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-sm bg-dark">Modifier</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ###### MODEL DE SHOW HOUSE ###### -->
-                        <div class="modal fade" id="showHouses_{{$locator['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <p class="" id="exampleModalLabel">Liste des maisons du locataire : <strong> <em class="text-red"> {{$locator['name']}} {{$locator['prenom']}}</em> </strong> </h6>
-                                    </div>
-
-                                    <?php
-                                    $houses = [];
-                                    foreach ($locator->Locations as $location) {
-                                        $houses[] = $location->House;
-                                    }; ?>
-
-                                    <ul class="list-group">
-                                        @if(count($houses)!=0)
-                                        @foreach($houses as $house)
-                                        <li class="list-group-item">{{$house->name}}</li>
-                                        @endforeach
-                                        @else
-                                        <p class="text-center text-red">Aucun résultat</p>
-                                        @endif
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ###### MODEL DE SHOW ROOM ###### -->
-                        <div class="modal fade" id="showRooms_{{$locator['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <p class="" id="exampleModalLabel">Liste des chambres du locataire : <strong> <em class="text-red"> {{$locator['name']}} {{$locator['prenom']}}</em> </strong> </h6>
-                                    </div>
-
-                                    <?php
-                                    $rooms = [];
-                                    foreach ($locator->Locations as $location) {
-                                        $rooms[] = $location->Room;
-                                    }; ?>
-
-                                    <ul class="list-group">
-                                        @if(count($rooms)!=0)
-                                        @foreach($rooms as $room)
-                                        <li class="list-group-item">{{$room->number}}</li>
-                                        @endforeach
-                                        @else
-                                        <p class="text-center text-red">Aucun résultat</p>
-                                        @endif
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-</div>
+
+
+    <!-- ###### MODEL DE SHOW HOUSE ###### -->
+    <div class="modal fade" id="showHouses" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p class="" id="exampleModalLabel">Liste des maisons du locataire : <strong> <em class="text-red" id="locator_fullname"> </em> </strong> </h6>
+                </div>
+
+                <h6 class="mx-3">Total : <strong> <em class="text-red" id="locator_houses_count"></em> </strong> </h6>
+                <ul class="list-group" id="locator_houses">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ###### MODEL DE SHOW ROOM ###### -->
+    <div class="modal fade" id="showRooms" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p class="" id="exampleModalLabel">Liste des chambres du locataire : <strong> <em class="text-red" id="room_locator_fullname"> </em> </strong> </h6>
+                </div>
+                <h6 class="mx-3">Total : <strong> <em class="text-red" id="locator_rooms_count"></em> </strong> </h6>
+                <ul class="list-group" id="locator_rooms">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ###### MODEL DE MODIFICATION ###### -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red" id="update_locator_fullname"> </em> </strong> </h6>
+                </div>
+                <div class="modal-body">
+                    <form id="update_form"  class="shadow-lg p-3">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Name</label>
+                                    <input type="text" id="name" name="name" placeholder="Nom ..." class="form-control">
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Prénom</label>
+                                    <input type="text" id="prenom" name="prenom" placeholder="Prénom ..." class="form-control">
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Email</label>
+                                    <input type="email" id="email" name="email" placeholder="Email..." class="form-control">
+                                </div><br>
+                                <select id="sexe" class="form-select form-control" name="sexe" aria-label="Default select example">
+                                    <option value="Maxculin">Maxculin</option>
+                                    <option value="Feminin">Feminin</option>
+                                </select>
+                                <br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Phone</label>
+                                    <input id="phone" type="phone" name="phone" placeholder="Téléphone ..." class="form-control">
+                                </div><br>
+                                <!--  -->
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Id Carte</label>
+                                    <input id="card_id" type="text" name="card_id" class="form-control" placeholder="ID de la carte ....">
+                                </div><br>
+                            </div>
+                            <!--  -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Adresse</label>
+                                    <input id="adresse" ype="text" name="adresse" class="form-control" placeholder="Adresse ....">
+                                </div><br>
+
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Type</label>
+                                    <select id="card_type" class="form-select form-control" name="card_type" aria-label="Default select example">
+                                        @foreach($card_types as $type)
+                                        <option value="{{$type['id']}}" @if($type['id']==$locator['card_type']) selected @endif>{{$type['name']}}</option>
+                                        @endforeach
+                                    </select>
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Pays</label>
+                                    <select id="country" class="form-select form-control" name="country" aria-label="Default select example">
+                                        @foreach($countries as $countrie)
+                                        @if($countrie['id']==4)
+                                        <option value="{{$countrie['id']}}" @if($countrie['id']==$locator['country']) selected @endif>{{$countrie['name']}}</option>
+                                        @endif
+                                        @endforeach
+                                    </select>
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Département</label>
+                                    <select id="departement" class="form-select form-control" name="departement" aria-label="Default select example">
+                                        @foreach($departements as $departement)
+                                        <option value="{{$departement['id']}}" @if($departement['id']==$locator['departement']) selected @endif>{{$departement['name']}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Commentaire</label>
+                                    <textarea id="comments" rows="1" name="comments" class="form-control" placeholder="Laissez un commentaire ici" class="form-control"></textarea>
+                                </div><br>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-sm bg-red"><i class="bi bi-check-circle"></i> Modifier</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 <script type="text/javascript">
+    function showRooms_fun(id) {
+        $("#locator_rooms").empty()
+        axios.get("{{env('API_BASE_URL')}}locator/" + id + "/retrieve").then((response) => {
+            var locator = response.data
+
+            var locator_fullname = locator.name + " " + locator.prenom;
+            var locator_rooms = locator["rooms"]
+
+            $("#room_locator_fullname").html(locator_fullname)
+            $("#locator_rooms_count").html(locator_rooms.length)
+
+            for (var i = 0; i < locator_rooms.length; i++) {
+                var room = locator_rooms[i];
+                $('#locator_rooms').append("<li class='list-group-item'> Numero: <strong><em class='text-red'>" + room.number + " </em> </strong>; Loyer: <strong><em class='text-red'>" + room.loyer + " </em> </strong>  </li>");
+            }
+        }).catch((error) => {
+            alert("une erreure s'est produite")
+            console.log(error)
+        })
+    }
+
+    function showHouses_fun(id) {
+        $("#locator_houses").empty()
+        axios.get("{{env('API_BASE_URL')}}locator/" + id + "/retrieve").then((response) => {
+            var locator = response.data
+
+            // console.log(locator)
+            var locator_fullname = locator.name + " " + locator.prenom;
+            var locator_houses = locator["houses"]
+
+            $("#locator_fullname").html(locator_fullname)
+            $("#locator_houses_count").html(locator_houses.length)
+
+            for (var i = 0; i < locator_houses.length; i++) {
+                var locator_fullname = locator_houses[i].name;
+                $('#locator_houses').append("<li class='list-group-item'>" + locator_fullname + "</li>");
+            }
+        }).catch((error) => {
+            alert("une erreure s'est produite")
+            console.log(error)
+        })
+    }
+
+    function updateModal_fun(id) {
+        axios.get("{{env('API_BASE_URL')}}locator/" + id + "/retrieve").then((response) => {
+            var locator = response.data
+            var locator_fullname = locator.name + " " + locator.prenom;
+
+            $("#update_locator_fullname").html(locator_fullname)
+
+            $("#name").val(locator["name"])
+            $("#prenom").val(locator["prenom"])
+            $("#email").val(locator["email"])
+            $("#sexe").val(locator["sexe"])
+            $("#phone").val(locator["phone"])
+            $("#card_id").val(locator["card_id"])
+            $("#adresse").val(locator["adresse"])
+
+            $("#card_type").val(locator["card_type"])
+            $("#country").val(locator["country"])
+            $("#departement").val(locator["departement"])
+            $("#comments").val(locator["comments"])
+
+            $("#update_form").attr("action", "/locataire/" + locator.id + "/update")
+        }).catch((error) => {
+            alert("une erreure s'est produite")
+            console.log(error)
+        })
+    }
+
+
     function prorataClick_fun() {
         var value = $('#prorata')[0].checked
         if (value) {

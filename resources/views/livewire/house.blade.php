@@ -268,7 +268,7 @@
                                         <i class="bi bi-kanban-fill"></i> &nbsp; Gérer
                                     </button>
                                     <ul class="dropdown-menu">
-                                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin)
+                                        @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_admin)
                                         <li>
                                             <a href="{{route('house.DeleteHouse', crypId($house['id']))}}" data-confirm-delete="true" class="btn btn-sm bg-red"><i class="bi bi-archive-fill"></i> Supprimer</a>
                                         </li>
@@ -325,7 +325,7 @@
                     <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red" id="update_house_fullname"> </em> </strong> </h6>
                 </div>
                 <div class="modal-body">
-                    <form action="{{route('house.UpdateHouse',$house['id'])}}" method="post" class="p-3 animate__animated animate__bounce">
+                    <form id="update_form" method="post" class="p-3 animate__animated animate__bounce">
                         @csrf
                         @method("PATCH")
                         <div class="row">
@@ -446,6 +446,7 @@
                 $("#proprio_payement_echeance_date").val(house["proprio_payement_echeance_date"])
                 $("#commission_percent").val(house["commission_percent"])
                 $("#proprio_payement_echeance_date").val(house["proprio_payement_echeance_date"])
+                $("#update_form").attr("action", "/house/" + house.id + "/update")
 
             }).catch((error) => {
                 alert("une erreure s'est produite")

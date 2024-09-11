@@ -341,173 +341,17 @@
                             <td class="text-center">{{$room["total_amount"]}}</td>
                             <td class="text-center">{{$room["Type"]['name']}}</td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#showLocators_{{$room['id']}}">
+                                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#showLocators" onclick="showLocators_fun({{$room['id']}})">
                                     <i class="bi bi-eye-fill"></i> &nbsp; Voir
                                 </button>
                             </td>
                             @if(IS_USER_HAS_MASTER_ROLE(auth()->user()) || auth()->user()->is_master || auth()->user()->is_admin || IS_USER_HAS_SUPERVISOR_ROLE(auth()->user()))
                             <td class="text-center d-flex">
-                                <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal_{{$room['id']}}"><i class="bi bi-person-lines-fill"></i> Modifier</button>
+                                <button class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#updateModal" onclick="updateModal_fun({{$room['id']}})"><i class="bi bi-person-lines-fill"></i> Modifier</button>
                                 <a href="{{ route('room.DeleteRoom', crypId($room['id']))}}" class="btn btn-sm bg-red" data-confirm-delete="true"><i class="bi bi-archive-fill"></i>Supprimer</a>
                             </td>
                             @endif
                         </tr>
-
-                        <!-- ###### MODEL DE LOCATAIRE -->
-                        <div class="modal fade" id="showLocators_{{$room['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <?php
-                                    $locataires = [];
-                                    foreach ($room->Locations as $location) {
-                                        $locataires[] = $location->Locataire;
-                                    }; ?>
-
-                                    <div class="modal-header">
-                                        <h5 class="text-center">Les Locataires de la chambre : <strong class="text-red"> {{$room["number"]}} </strong> </h5>
-                                    </div>
-                                    <div class="modal-body">
-                                        <h6 class="">Total de locataire: <em class="text-red"> {{count($locataires)}}</em> </h6>
-                                        <ul class="list-group">
-                                            @foreach($locataires as $locator)
-                                            <li class="list-group-item">{{$locator->name}} {{$locator->prenom}}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ###### MODEL DE MODIFICATION ###### -->
-                        <div class="modal fade" id="updateModal_{{$room['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red"> {{$room['number']}}</em> </strong> </h6>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{route('room.UpdateRoom',crypId($room['id']))}}" method="POST" class="shadow-lg p-3 animate__animated animate__bounce" enctype="multipart/form-data">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Loyer</label>
-                                                        <input type="text" name="loyer" value="{{$room->loyer}}" placeholder="Le loyer" class="form-control">
-
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Numéro de chambre</label>
-                                                        <input type="text" value="{{$room->number}}" name="number" placeholder="Numéro de la chambre" class="form-control">
-
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Gardiennage</label>
-                                                        <input type="text" value="{{$room->gardiennage}}" name="gardiennage" placeholder="Gardiennage ..." class="form-control">
-
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Ordures</label>
-                                                        <input type="text" value="{{$room->rubbish}}" name="rubbish" placeholder="Les ordures ..." class="form-control">
-
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Vidange</label>
-                                                        <input type="text" value="{{$room->vidange}}" name="vidange" placeholder="La vidange ..." class="form-control">
-
-                                                    </div><br>
-
-                                                    <div class="water shadow-lg roundered p-2" id="show_water_info">
-
-                                                        <div class="mb-3" hidden id="show_forage_inputs">
-                                                            <span for="" class="d-block">Forfait forage</span>
-                                                            <input type="text" value="{{$room->forfait_forage}}" name="forfait_forage" placeholder="Forfait forage" class="form-control" id="">
-
-                                                        </div>
-
-                                                        <div class="mb-3" id="water_discounter_inputs" hidden>
-                                                            <span for="" class="d-block">Prix unitaire par mêtre cube</span>
-                                                            <input value="{{$room->unit_price}}" type="text" name="unit_price" placeholder="Prix unitaire en mèttre cube" class="form-control" id="">
-
-                                                        </div>
-
-                                                        <div class="mb-3" id="show_water_conventionnal_counter_inputs" hidden>
-                                                            <span for="" class="d-block">Numéro du compteur</span>
-                                                            <input value="{{$room->water_counter_number}}" type="text" name="water_counter_number" placeholder="Numéro compteur" class="form-control" id="">
-
-                                                            <div class="">
-                                                                <span for="" class="d-block">Index du compteur d'eau</span>
-                                                                <input value="{{$room->water_counter_start_index}}" type="text" name="water_counter_start_index" placeholder="Index début ...." class="form-control" id="">
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3" id="water_counter_start_index" hidden>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!--  -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Nettoyage</label>
-                                                        <input type="text" value="{{$room->cleaning}}" name="cleaning" placeholder="Le nettoyage ..." class="form-control">
-
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Commentaire</label>
-                                                        <textarea value="{{$room->comments}}" name="comments" rows="1" placeholder="Laisser un commentaire ..." class="form-control" class="form-control" id=""></textarea>
-
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Maison</label>
-                                                        <select value="{{$room->house}}" class="form-select form-control" name="house" aria-label="Default select example">
-                                                            @foreach($houses as $house)
-                                                            <option value="{{$house['id']}}">{{$house['name']}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Nature</label>
-                                                        <select value="{{$room->nature}}" class="form-select form-control" name="nature" aria-label="Default select example">
-                                                            @foreach($room_natures as $nature)
-                                                            <option value="{{$nature['id']}}">{{$nature['name']}}</option>
-                                                            @endforeach
-                                                        </select>
-
-                                                    </div><br>
-                                                    <div class="mb-3">
-                                                        <label for="" class="d-block">Type</label>
-                                                        <select value="{{$room->type}}" class="form-select form-control" name="type" aria-label="Default select example">
-                                                            @foreach($room_types as $type)
-                                                            <option value="{{$type['id']}}">{{$type['name']}}</option>
-                                                            @endforeach
-                                                        </select>
-
-                                                    </div><br>
-
-                                                    <div id="show_electricity_discountInputs" hidden>
-                                                        <div class="mb-3">
-                                                            <span for="" class="d-block">Numéro compteur</span>
-                                                            <input value="{{$room->electricity_counter_number}}" type="text" name="electricity_counter_number" placeholder="Numéro compteur" class="form-control" id="">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <span for="" class="d-block">Prix unitaire</span>
-                                                            <input value="{{$room->electricity_unit_price}}" type="text" name="electricity_unit_price" placeholder="Prix unitaire par kilowatheure " class="form-control" id="">
-
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <span for="" class="d-block">Index de début</span>
-                                                            <input value="{{$room->electricity_counter_start_index}}" type="text" name="electricity_counter_start_index" placeholder="Index début ...." class="form-control" id="">
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button class="btn bg-red">Enregistrer</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         @endforeach
                     </tbody>
 
@@ -516,7 +360,172 @@
         </div>
     </div>
 
+    <!-- ###### MODEL DE LOCATAIRE -->
+    <div class="modal fade" id="showLocators" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="text-center">Les Locataires de la chambre : <strong class="text-red" id="room_number"> </strong> </h5>
+                </div>
+                <div class="modal-body">
+                    <h6 class="">Total de locataire: <em class="text-red" id="room_locators_count"></em> </h6>
+                    <ul class="list-group" id="room_locators">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ###### MODEL DE MODIFICATION ###### -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fs-5" id="exampleModalLabel">Modifier <strong> <em class="text-red" id="update_room_fullname"></em> </strong> </h6>
+                </div>
+                <div class="modal-body">
+                    <form id="update_form" method="POST" class="shadow-lg p-3 animate__animated animate__bounce" enctype="multipart/form-data">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Loyer</label>
+                                    <input type="text" name="loyer" id="loyer" placeholder="Le loyer" class="form-control">
+
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Numéro de chambre</label>
+                                    <input type="text" id="number" name="number" placeholder="Numéro de la chambre" class="form-control">
+
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Gardiennage</label>
+                                    <input type="text" id="gardiennage" name="gardiennage" placeholder="Gardiennage ..." class="form-control">
+
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Ordures</label>
+                                    <input type="text" id="rubbish" name="rubbish" placeholder="Les ordures ..." class="form-control">
+
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Vidange</label>
+                                    <input type="text" id="vidange" name="vidange" placeholder="La vidange ..." class="form-control">
+
+                                </div><br>
+
+                                <div class="water shadow-lg roundered p-2" id="show_water_info">
+
+                                    <div class="mb-3" id="water_discounter_inputs">
+                                        <span for="" class="d-block">Prix unitaire par mêtre cube</span>
+                                        <input id="unit_price" type="text" name="unit_price" placeholder="Prix unitaire en mèttre cube" class="form-control" id="">
+
+                                    </div>
+
+                                    <div class="mb-3" id="show_water_conventionnal_counter_inputs">
+                                        <span for="" class="d-block">Numéro du compteur</span>
+                                        <input id="water_counter_number" type="text" name="water_counter_number" placeholder="Numéro compteur" class="form-control">
+
+                                        <div class="">
+                                            <span for="" class="d-block">Index du compteur d'eau</span>
+                                            <input id="water_counter_start_index" type="text" name="water_counter_start_index" placeholder="Index début ...." class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--  -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Nettoyage</label>
+                                    <input type="text" id="cleaning" name="cleaning" placeholder="Le nettoyage ..." class="form-control">
+
+                                </div><br>
+                                <div class="mb-3">
+                                    <label for="" class="d-block">Commentaire</label>
+                                    <textarea id="comments" name="comments" rows="1" placeholder="Laisser un commentaire ..." class="form-control" class="form-control" id=""></textarea>
+
+                                </div><br>
+                                <div id="">
+                                    <div class="mb-3">
+                                        <span for="" class="d-block">Numéro compteur</span>
+                                        <input id="electricity_counter_number" type="text" name="electricity_counter_number" placeholder="Numéro compteur" class="form-control" id="">
+                                    </div>
+                                    <div class="mb-3">
+                                        <span for="" class="d-block">Prix unitaire</span>
+                                        <input id="electricity_unit_price" type="text" name="electricity_unit_price" placeholder="Prix unitaire par kilowatheure " class="form-control" id="">
+
+                                    </div>
+                                    <div class="mb-3">
+                                        <span for="" class="d-block">Index de début</span>
+                                        <input id="electricity_counter_start_index" type="text" name="electricity_counter_start_index" placeholder="Index début ...." class="form-control" id="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-sm bg-red"><i class="bi bi-check-circle"></i> Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript">
+        function showLocators_fun(id) {
+            $("#room_locators").empty()
+            axios.get("{{env('API_BASE_URL')}}room/" + id + "/retrieve").then((response) => {
+                var room = response.data
+
+                var room_number = room["number"];
+                var room_locators = room["locataires"]
+
+                $("#room_number").html(room_number)
+                $("#room_locators_count").html(room_locators.length)
+
+                for (var i = 0; i < room_locators.length; i++) {
+                    var locator_fullname = room_locators[i].name + " " + room_locators[i].prenom;
+                    $('#room_locators').append("<li class='list-group-item'>" + locator_fullname + "</li>");
+                }
+            }).catch((error) => {
+                alert("une erreure s'est produite")
+                console.log(error)
+            })
+        }
+
+        function updateModal_fun(id) {
+            axios.get("{{env('API_BASE_URL')}}room/" + id + "/retrieve").then((response) => {
+                var room = response.data
+                var room_fullname = room["number"];
+                
+                $("#update_room_fullname").html(room_fullname)
+
+                $("#loyer").val(room["loyer"])
+                $("#number").val(room["number"])
+                $("#gardiennage").val(room["gardiennage"])
+                $("#rubbish").val(room["rubbish"])
+                $("#vidange").val(room["vidange"])
+                $("#forfait_forage").val(room["forfait_forage"])
+                $("#unit_price").val(room["unit_price"])
+
+                $("#water_counter_number").val(room["water_counter_number"])
+                $("#water_counter_start_index").val(room["water_counter_start_index"])
+                $("#cleaning").val(room["cleaning"])
+                $("#comments").val(room["comments"])
+                $("#electricity_counter_number").val(room["electricity_counter_number"])
+
+                $("#electricity_unit_price").val(room["electricity_unit_price"])
+                $("#electricity_counter_start_index").val(room["electricity_counter_start_index"])
+                $("#update_form").attr("action", "/room/" + room.id + "/update")
+
+            }).catch((error) => {
+                alert("une erreure s'est produite")
+                console.log(error)
+            })
+        }
+
+
         $(document).ready(function() {
             $("#showWaterInfo").click();
         })

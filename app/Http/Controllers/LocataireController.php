@@ -352,7 +352,7 @@ class LocataireController extends Controller
     {
         $user = request()->user();
         $formData = $request->all();
-        $locataire = Locataire::where(["visible" => 1])->find(deCrypId($id));
+        $locataire = Locataire::where(["visible" => 1])->find($id);
         if (!$locataire) {
             alert()->error("Echec", "Ce locataire n'existe pas!");
             return back()->withInput();

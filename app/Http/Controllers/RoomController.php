@@ -334,37 +334,11 @@ class RoomController extends Controller
         return back()->withInput();
     }
 
-    #GET ALL ROOM
-    function Rooms(Request $request)
-    {
-        #VERIFICATION DE LA METHOD
-        if ($this->methodValidation($request->method(), "GET") == False) {
-            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS BASE_HELPER HERITEE PAR Card_HELPER
-            return $this->sendError("La methode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
-        };
-
-        #RECUPERATION DE TOUTES LES CHAMBRES
-        return $this->getRooms();
-    }
-
-    #GET AN ROOM
-    function RetrieveRoom(Request $request, $id)
-    {
-        #VERIFICATION DE LA METHOD
-        if ($this->methodValidation($request->method(), "GET") == False) {
-            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS BASE_HELPER HERITEE PAR Card_HELPER
-            return $this->sendError("La methode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
-        };
-
-        #RECUPERATION DE LA CHAMBRE
-        return $this->_retrieveRoom($id);
-    }
-
     function UpdateRoom(Request $request, $id)
     {
         $user = request()->user();
         $formData = $request->all();
-        $room = Room::where(["visible" => 1])->find(deCrypId($id));
+        $room = Room::where(["visible" => 1])->find($id);
         if (!$room) {
             alert()->error("Echec", "Cette Chambre n'existe pas!");
             return back()->withInput();
@@ -408,6 +382,30 @@ class RoomController extends Controller
                 return back()->withInput();
             }
         }
+
+        #ENREGISTREMENT DE LA CARTE DANS LA DB
+        $formData["owner"] = $user->id;
+        $formData["water"] = $request->water ? 1 : 0;
+        $formData["water_discounter"] = $request->water_discounter ? 1 : 0;
+        $formData["forage"] = $request->forage ? 1 : 0;
+        $formData["forfait_forage"] = $request->forfait_forage ? $request->forfait_forage : 0;
+        $formData["water_counter_number"] = $request->water_counter_number ? $request->water_counter_number : "--";
+        $formData["water_conventionnal_counter"] = $request->water_conventionnal_counter ? 1 : 0;
+        $formData["water_counter_start_index"] = $request->water_counter_start_index ? $request->water_counter_start_index : 0;
+
+        $formData["electricity"] = $request->water ? 1 : 0;
+        $formData["electricity_discounter"] = $request->electricity_discounter ? 1 : 0;
+        $formData["electricity_conventionnal_counter"] = $request->electricity_conventionnal_counter ? 1 : 0;
+        $formData["electricity_card_counter"] = $request->electricity_card_counter ? 1 : 0;
+        $formData["electricity_counter_number"] = $request->electricity_counter_number ? $request->electricity_counter_number : "--";
+
+        $formData["cleaning"] = $request->cleaning ? $request->cleaning : 0;
+        $formData["comments"] = $request->comments ? $request->comments : "---";
+        $formData["rubbish"] = $request->rubbish ? $request->rubbish : 0;
+
+
+        $formData["total_amount"] = $formData["loyer"] + $formData["gardiennage"] + $formData["rubbish"] + $formData["vidange"] + $formData["cleaning"];
+
         $formData['comments'] = $request->comments ? $request->comments : $room->comments;
 
         #ENREGISTREMENT DE LA CARTE DANS LA DB
