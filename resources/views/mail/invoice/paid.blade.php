@@ -2,10 +2,10 @@
 <h1 class="">{{$subject}}</h1> 
 <br>
 {{$message}}
-
+<!-- 
 <x-mail::button :url="''">
 Visitez notre plateforme
-</x-mail::button>
+</x-mail::button> -->
 
 Merci <br>
 Coordialement,<br>

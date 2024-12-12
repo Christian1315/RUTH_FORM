@@ -219,9 +219,9 @@
         @livewireScripts
     </body>
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="fichiers/jquery.min.js"></script>
-    <script src="fichiers/popper.min.js"></script>
-    <script src="fichiers/bootstrap.min.js"></script>
+    <script src="{{asset('fichiers/jquery.min.js')}}"></script>
+    <script src="{{asset('fichiers/popper.min.js')}}"></script>
+    <script src="{{asset('fichiers/bootstrap.min.js')}}"></script>
     <!-- <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script> -->
     <script src="{{asset('datatables/datatable.js')}}"></script>
 

@@ -13,7 +13,7 @@
         <!-- BOOTSTRAP SELECT -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" integrity="sha512-ARJR74swou2y0Q2V9k0GbzQ/5vJ2RBSoCWokg4zkfM29Fb3vZEQyv0iWBMW/yvKgyHSR/7D64pFMmU8nYmbRkg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-        <title>EDOU-IMMO</title>
+        <title>RUTH'APP</title>
         @livewireStyles
     </head>
 
@@ -22,29 +22,34 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12 px-0 mx-0 fixed-top">
-                        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-lg py-0">
-                            <a class="navbar-brand" href="/"><img src="images/edou_logo.png" width="60px" alt="" srcset=""></a>
-                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                <span class="navbar-toggler-icon"></span>
-                            </button>
+                        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-lg py-2">
+                            <a class="navbar-brand" href="/"><strong class="bg-warning text-dark p-1" style="margin-right:-10px"> RUTH'</strong> <strong class="app bg-danger text-white p-1"> APP</strong></a>
 
-                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                                <ul class="navbar-nav mr-auto">
-                                    <li class="nav-item active">
-                                        <a class="nav-link" href="#">EDOU-SERVICES <span class="sr-only">(current)</span></a>
-                                    </li>
-                                </ul>
-                                <form class="form-inline my-2 my-lg-0">
-                                    <p style="font-size: 20px;font-weight: bold;">L'Agence immobilière qu'il vous faut!</p>
-                                </form>
+                            <div class="d-flex" id="navbarNav">
+                                <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" href="/">Inscription</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/abonnement">Abonnement</a>
+                                </li>
                             </div>
                         </nav>
+
+                        <style>
+                            #navbarNav li {
+                                list-style-type: none;
+                            }
+                            #navbarNav li a{
+                                text-decoration: none;
+                                color: #000;
+                            }
+                        </style>
                     </div>
                 </div>
             </div>
 
             <!-- content -->
-            <div class="container-fluid " id="login-page">
+            <div class="container-fluid bg-light" id="login-page">
                 <!-- MESSAGE FLASH -->
                 <x-alert />
 
@@ -55,7 +60,7 @@
             <div class="container-fluid fixed-bottom  shadow-lg py-0 bg-white">
                 <div class="row">
                     <div class="col-md-12 px-0 mx-0 py-2">
-                        <p class="text-center">© Copyright 2024</p>
+                        <p class="text-center">© Copyright 2024 | By Code4Christ</p>
                     </div>
                 </div>
             </div>

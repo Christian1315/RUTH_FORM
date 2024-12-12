@@ -41,7 +41,7 @@
                                 <tr style="background-color: #6b00e4;">
                                     <td class="header">
                                         <a href="" style="display: inline-block;background-color:#fff!important;padding:5px;border-radius:10px!important;">
-                                            <img src="https://res.cloudinary.com/duk6hzmju/image/upload/v1698775065/logo1_em8acy.jpg" class="logo" alt="PERFECT_ERP">
+                                            RUTH'APP>
                                         </a>
                                     </td>
                                 </tr>
